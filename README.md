@@ -10,9 +10,11 @@ Type words to grow procedural vector botanical vines, blooming roses, and foliag
 
 **Type Garden Studio** is inspired by and pays direct credit to:
 
-> **[Type Garden](https://type-garden.vercel.app/)** (`https://type-garden.vercel.app/`)
+> **Web:** [Type Garden](https://type-garden.vercel.app/) (`https://type-garden.vercel.app/`)
 >
-> Original concept and botanical typewriter design reference: [Type Garden on Vercel](https://type-garden.vercel.app/). All credits for the original botanical typing inspiration belong to the original creators.
+> **Developer:** [Akshat Agarwal](https://x.com/art_akshat) ([@art_akshat](https://x.com/art_akshat))
+>
+> Original concept and botanical typewriter design reference: [Type Garden on Vercel](https://type-garden.vercel.app/). All credits for the original botanical generative concept and typing interactions belong to Akshat Agarwal.
 
 This implementation builds upon the concept by introducing:
 - A modular TypeScript 5 architecture with 100% strict typing.
@@ -112,7 +114,7 @@ TYPE-GARDEN-POSTER/
 │   │   ├── renderer.ts         # Canvas2D & SVG hybrid vector/sprite renderer
 │   │   └── exporter.ts         # 16Mbps MediaRecorder video stream (MP4/WebM) + CRC32 ZIP frame exporter
 │   └── ui/
-│       ├── modals.ts           # Sprite manager, texture selector, master prompt modal, and toasts
+│       ├── modals.ts           # Sprite manager, texture selector, credits modal, and toasts
 │       └── studioInspector.ts  # 4-tab Poster Studio inspector (Design, Size & Motion, Sprites, Textures)
 ```
 
@@ -153,6 +155,36 @@ Preview the production build locally:
 ```bash
 npm run preview
 ```
+
+---
+
+## Deployment
+
+Type Garden Studio requires zero database or cloud storage backend configuration and is ready to deploy directly to Vercel or GitHub Pages.
+
+### Deploy to Vercel
+
+1. Push your repository to GitHub.
+2. In the [Vercel Dashboard](https://vercel.com/new), select **Add New Project** and import your repository.
+3. Framework Preset: **Vite** (auto-detected).
+4. Build Command: `npm run build`.
+5. Output Directory: `dist`.
+6. Click **Deploy**. Vercel will serve your app at a custom `.vercel.app` domain with instant global edge CDN caching.
+
+Alternatively, deploy directly from your terminal:
+```bash
+npx vercel
+```
+
+### Deploy to GitHub Pages
+
+The repository includes a ready-to-run GitHub Actions workflow in `.github/workflows/deploy.yml`.
+
+1. Push your code to the `main` branch on GitHub.
+2. In your GitHub repository, navigate to **Settings > Pages**.
+3. Under **Build and deployment > Source**, choose **GitHub Actions**.
+4. GitHub Actions will automatically run tests, build the Vite production bundle, and publish your site at `https://<username>.github.io/<repository-name>/`.
+5. Because `vite.config.ts` uses relative asset resolution (`base: './'`), all scripts, fonts, and worker chunks load seamlessly on both subpaths and root domains.
 
 ---
 

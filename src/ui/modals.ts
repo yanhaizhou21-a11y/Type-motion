@@ -10,7 +10,7 @@ export class ModalManager {
     this.onModalCloseCallback = onModalClose;
     this.spritesModal = document.getElementById('tg-modal-sprites');
     this.texModal = document.getElementById('tg-modal-tex');
-    this.stackModal = document.getElementById('tg-modal-stack');
+    this.stackModal = document.getElementById('tg-modal-credits') || document.getElementById('tg-modal-stack');
     this.toastEl = document.getElementById('tg-toast');
 
     this.bindEvents();
@@ -35,30 +35,19 @@ export class ModalManager {
       this.closeModal(this.texModal);
     });
 
-    // Stack prompt modal
-    document.getElementById('tg-mode-stack')?.addEventListener('click', (e) => {
+    // Credits / Stack modal
+    const openCredits = (e: Event) => {
       e.stopPropagation();
       this.openModal(this.stackModal);
-    });
-    document.getElementById('tg-close-stack')?.addEventListener('click', () => {
-      this.closeModal(this.stackModal);
-    });
+    };
+    document.getElementById('tg-mode-credits')?.addEventListener('click', openCredits);
+    document.getElementById('tg-mode-stack')?.addEventListener('click', openCredits);
 
-    // Copy prompt button
-    document.getElementById('tg-copy-prompt')?.addEventListener('click', () => {
-      const content = document.getElementById('tg-prompt-content')?.textContent || '';
-      navigator.clipboard.writeText(content).then(() => {
-        const btn = document.getElementById('tg-copy-prompt');
-        if (btn) {
-          const old = btn.textContent;
-          btn.textContent = 'Copied!';
-          setTimeout(() => {
-            btn.textContent = old;
-          }, 1800);
-        }
-        this.showToast('Master prompt copied to clipboard!');
-      }).catch(() => {});
-    });
+    const closeCredits = () => {
+      this.closeModal(this.stackModal);
+    };
+    document.getElementById('tg-close-credits')?.addEventListener('click', closeCredits);
+    document.getElementById('tg-close-stack')?.addEventListener('click', closeCredits);
 
     // Backdrop click closures
     [this.spritesModal, this.texModal, this.stackModal].forEach((m) => {

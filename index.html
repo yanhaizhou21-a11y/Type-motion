@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>Type Garden Studio</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
@@ -576,7 +577,7 @@
     <div data-tg="modes" id="tg-modes">
       <button class="tg-mode-btn" id="tg-mode-type">Type</button>
       <button class="tg-mode-btn" id="tg-mode-poster">Poster</button>
-      <button class="tg-mode-btn" id="tg-mode-stack" style="color:#FFB4A8;">Vite TS Stack</button>
+      <button class="tg-mode-btn" id="tg-mode-credits" style="color:#FFB4A8;">Credits</button>
     </div>
 
     <div data-tg="bar" id="tg-bar">
@@ -773,35 +774,41 @@
       </div>
     </div>
 
-    <!-- Modal 3: Zero-Cost 12k+ Users Architecture & Prompt -->
-    <div class="tg-modal-backdrop" id="tg-modal-stack">
+    <!-- Modal 3: Credits & Inspiration -->
+    <div class="tg-modal-backdrop" id="tg-modal-credits">
       <div class="tg-modal">
         <div class="tg-modal-head">
-          <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#FFB4A8;">Vite + TypeScript Master Prompt</span>
+          <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#FFB4A8;">Credits &amp; Reference</span>
           <div style="display:flex;gap:8px;">
-            <button class="tg-mini-btn" id="tg-copy-prompt" style="border-color:#7FD18B;color:#7FD18B;">Copy Prompt</button>
-            <button class="tg-mini-btn" id="tg-close-stack">Close</button>
+            <button class="tg-mini-btn" id="tg-close-credits">Close</button>
           </div>
         </div>
-        <div class="tg-modal-body">
-          <div style="color:#BDBDBD;font-size:12px;line-height:1.5;">
-            Zero-cost storage architecture for <strong>12,000+ users</strong>: All custom images (.png, .svg, .jpg, .webp), background-removed alpha bitmaps, and garden presets stay 100% client-side in <strong>IndexedDB + localStorage</strong>. Server bandwidth is static bundle only. Shareable garden URLs use compressed URL hashes via <strong>lz-string</strong> with zero database reads or writes.
+        <div class="tg-modal-body" style="display:flex;flex-direction:column;gap:16px;">
+          <div style="color:#D4D4D4;font-size:13px;line-height:1.6;">
+            <strong>Type Garden Studio</strong> is inspired by and pays direct credit to:
           </div>
-          <div class="tg-code-box" id="tg-prompt-content"># ROLE & OBJECTIVE
-Act as a Staff Creative Technologist and Senior Full-Stack TypeScript Architect.
-Build **Type Garden Studio**, a production-ready generative botanical typography & motion poster studio using **Vite + TypeScript**.
-The architecture must support **12,000+ concurrent/monthly users with $0 cloud storage and $0 database cost** by keeping all user assets, processed alpha bitmaps, and studio states strictly inside browser storage (IndexedDB + localStorage + URL hash state).
 
-# 1. TECH STACK & ZERO-COST 12,000+ USER ARCHITECTURE
-- Frontend Bundler & Language: Vite 6 + TypeScript 5 (strict: true, modular ES2022, zero heavy runtime dependencies).
-- Rendering & Export Pipeline:
-  - HTML5 2D &lt;canvas&gt; for real-time 60fps interactive rendering and compositing.
-  - OffscreenCanvas (or hidden &lt;canvas&gt;) for corner-sampled chroma-key background removal and deterministic frame rendering.
-  - MediaRecorder (video/mp4;codecs=avc1.42E01E / video/webm;codecs=vp9) + custom zero-dependency CRC32 .zip binary packer for PNG frame sequences.
-- $0-Cost Client Storage Layer (src/storage/localStore.ts):
-  1. localStorage (tg_studio_v2_state): Stores active palette, poster dimensions (pw, ph), motion preset, poster mode (loop vs pic), timeline scrub (0..1), loop duration, FPS, and texture blend config.
-  2. IndexedDB (tg_assets_db): Stores user-uploaded custom sprites (.png, .svg, .jpg, .jpeg, .webp), background-stripped alpha Blobs, custom still textures, and looping video textures (.mp4, .webm).
-  3. Shareable State via URL Hash (#g=...): Encode seed + text + palette + preset into URL hash.</div>
+          <div style="background:#141414;border:1px solid rgba(255,255,255,0.12);border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <span style="color:#8E8E8E;font-size:12px;text-transform:uppercase;letter-spacing:0.06em;">Original Website</span>
+              <a href="https://type-garden.vercel.app/" target="_blank" rel="noopener noreferrer" style="color:#FFB4A8;text-decoration:none;font-weight:500;font-size:13px;border-bottom:1px dotted #FFB4A8;word-break:break-all;">
+                https://type-garden.vercel.app/ ↗
+              </a>
+            </div>
+
+            <div style="height:1px;background:rgba(255,255,255,0.08);"></div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+              <span style="color:#8E8E8E;font-size:12px;text-transform:uppercase;letter-spacing:0.06em;">Original Developer</span>
+              <a href="https://x.com/art_akshat" target="_blank" rel="noopener noreferrer" style="color:#7FD18B;text-decoration:none;font-weight:500;font-size:13px;border-bottom:1px dotted #7FD18B;">
+                Akshat Agarwal (@art_akshat) ↗
+              </a>
+            </div>
+          </div>
+
+          <div style="color:#A0A0A0;font-size:12px;line-height:1.5;">
+            All credits for the original botanical typewriter interaction, concept, and floral aesthetics belong to <a href="https://x.com/art_akshat" target="_blank" rel="noopener noreferrer" style="color:#FFF;text-decoration:underline;text-underline-offset:2px;">Akshat Agarwal</a>.
+          </div>
         </div>
       </div>
     </div>
