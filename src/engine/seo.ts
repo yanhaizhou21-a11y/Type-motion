@@ -85,7 +85,7 @@ export function computeSeoMetadata(
     : 'https://type-motion-mu.vercel.app';
   const pathname = typeof window !== 'undefined' && window.location ? window.location.pathname : '/';
   const fullUrl = typeof window !== 'undefined' && window.location ? window.location.href : `${origin}${pathname}`;
-  const baseImgUrl = `${origin}${pathname.endsWith('/') ? pathname : pathname + '/'}og.png`;
+  const baseImgUrl = `${origin}${pathname.endsWith('/') ? pathname : pathname + '/'}og.jpg`;
 
   const palName = typeof palIdx === 'number' ? getPalette(palIdx).name : 'Rose noir';
   const presetDef = PRESETS.find((p) => p.id === presId);
@@ -152,10 +152,13 @@ export function updateDynamicSeo(
   ensureMetaTag('property', 'og:url', meta.canonicalUrl);
   ensureMetaTag('property', 'og:image', meta.imageUrl);
   ensureMetaTag('property', 'og:image:secure_url', meta.imageUrl);
-  ensureMetaTag('property', 'og:image:type', 'image/png');
+  ensureMetaTag('property', 'og:image:type', 'image/jpeg');
   ensureMetaTag('property', 'og:image:width', '1200');
   ensureMetaTag('property', 'og:image:height', '630');
   ensureMetaTag('property', 'og:image:alt', 'Type Garden Studio botanical typography overgrown with blooming roses');
+
+  // WhatsApp / Link image fallback
+  ensureLinkTag('image_src', meta.imageUrl);
 
   // 4. Twitter / X Cards
   ensureMetaTag('name', 'twitter:card', 'summary_large_image');
