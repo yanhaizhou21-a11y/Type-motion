@@ -1,0 +1,23 @@
+{
+  "name": "type-garden-studio",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "idb-keyval": "^6.2.1",
+    "lz-string": "^1.5.0"
+  },
+  "devDependencies": {
+    "@types/lz-string": "^1.5.0",
+    "@types/node": "^22.10.2",
+    "typescript": "^5.7.2",
+    "vite": "^6.0.3",
+    "vitest": "^3.0.0"
+  }
+}

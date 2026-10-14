@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Type Garden Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      overscroll-behavior: none;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+    a:hover { color: #FFB4A8; }
+    input[type=range] { accent-color: #FFFFFF; }
+
+    [data-tg="app"] {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      cursor: text;
+      font-family: 'DM Mono', ui-monospace, monospace;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    [data-tg="app"] button {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid #FFFFFF;
+      outline-offset: 2px;
+    }
+    html[data-touch] [data-tg="app"] {
+      touch-action: none;
+      top: var(--tg-top, 0px) !important;
+      bottom: auto !important;
+      height: var(--tg-h, 100%) !important;
+    }
+    [data-tg="modes"] {
+      position: absolute;
+      top: calc(16px + env(safe-area-inset-top)) !important;
+      right: calc(16px + env(safe-area-inset-right)) !important;
+      z-index: 10;
+      display: flex;
+      gap: 4px;
+      padding: 4px;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 999px;
+      background: rgba(10,10,10,0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+    }
+    .tg-mode-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font: inherit;
+      font-size: 11.5px;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    [data-tg="bar"] {
+      position: absolute;
+      left: calc(20px + env(safe-area-inset-left)) !important;
+      right: calc(20px + env(safe-area-inset-right)) !important;
+      bottom: calc(18px + env(safe-area-inset-bottom)) !important;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      font-size: 11.5px;
+      letter-spacing: 0.03em;
+      color: #FFFFFF;
+      z-index: 6;
+      pointer-events: none;
+    }
+    [data-tg="hints"] {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(10,10,10,0.72);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      opacity: 0.78;
+      pointer-events: auto;
+      transition: opacity 0.2s;
+    }
+    [data-tg="hints"]:hover { opacity: 1; }
+    [data-tg="ctrls"] {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-wrap: wrap;
+      padding: 5px 7px;
+      border-radius: 999px;
+      background: rgba(10,10,10,0.82);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      pointer-events: auto;
+    }
+    [data-tg="pal"] {
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      padding: 3px 6px;
+      border-right: 1px solid rgba(255,255,255,0.12);
+      margin-right: 2px;
+    }
+    [data-tg="sw"] {
+      width: 20px;
+      height: 20px;
+      padding: 0;
+      border-radius: 999px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.15s ease, border-color 0.15s;
+    }
+    [data-tg="sw"]:hover {
+      transform: scale(1.18) !important;
+    }
+    [data-tg="dot"] {
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    .tg-action-btn {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: #DFDFDF;
+      font: inherit;
+      font-size: 11px;
+      padding: 6px 11px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+      white-space: nowrap;
+    }
+    .tg-action-btn:hover {
+      border-color: #FFFFFF;
+      color: #FFFFFF;
+      background: rgba(255,255,255,0.1);
+    }
+
+    [data-tg="coarse"] { display: none; }
+    @media (pointer: coarse) {
+      [data-tg="fine"] { display: none; }
+      [data-tg="coarse"] { display: inline; }
+    }
+    @media (max-width: 680px) {
+      [data-tg="bar"] {
+        left: calc(12px + env(safe-area-inset-left)) !important;
+        right: calc(12px + env(safe-area-inset-right)) !important;
+        bottom: calc(12px + env(safe-area-inset-bottom)) !important;
+        gap: 8px !important;
+      }
+      [data-tg="hints"] { display: none; }
+      [data-tg="ctrls"] { width: 100%; justify-content: space-between; border-radius: 16px; padding: 8px; }
+      [data-tg="pal"] { border-right: 0; width: 100%; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+    }
+
+    [data-tg="poster"] {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: 360px minmax(0, 1fr);
+      background: #050505;
+      cursor: default;
+      color: #EDEDED;
+      font-size: 12px;
+      letter-spacing: 0.02em;
+      z-index: 2;
+    }
+    [data-tg="panel"] {
+      border-right: 1px solid #1C1C1C;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden;
+      background: #0B0B0B;
+    }
+    .tg-panel-header {
+      padding: 18px 18px 12px;
+      border-bottom: 1px solid #1A1A1A;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      flex-shrink: 0;
+      background: #0E0E0E;
+    }
+    .tg-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      background: #050505;
+      padding: 4px;
+      border-radius: 10px;
+      border: 1px solid #222;
+    }
+    .tg-tab-btn {
+      background: transparent;
+      border: 0;
+      color: #8E8E8E;
+      font: inherit;
+      font-size: 11px;
+      padding: 7px 4px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .tg-tab-btn:hover { color: #FFF; }
+    .tg-tab-btn.active {
+      background: #222222;
+      color: #FFFFFF;
+      font-weight: 500;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .tg-panel-scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 16px 18px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .tg-panel-scroll::-webkit-scrollbar { width: 5px; }
+    .tg-panel-scroll::-webkit-scrollbar-track { background: transparent; }
+    .tg-panel-scroll::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 999px; }
+    .tg-panel-footer {
+      padding: 12px 18px calc(14px + env(safe-area-inset-bottom));
+      border-top: 1px solid #1A1A1A;
+      background: #0E0E0E;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .tg-sec-label {
+      color: #7E7E7E;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.09em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    [data-tg="stage"] {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 68px 36px 32px;
+      min-width: 0;
+      min-height: 0;
+      overflow: hidden;
+      position: relative;
+      background: radial-gradient(circle at center, #111111 0%, #040404 100%);
+    }
+    .tg-stage-pill {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(12,12,12,0.82);
+      border: 1px solid #262626;
+      border-radius: 999px;
+      padding: 5px 14px;
+      font-size: 11px;
+      color: #9E9E9E;
+      backdrop-filter: blur(8px);
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    [data-tg="pcanvas"] {
+      max-width: 100%;
+      max-height: calc(100vh - 120px);
+      width: auto;
+      height: auto;
+      display: block;
+      border: 1px solid #242424;
+      border-radius: 4px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.85);
+      object-fit: contain;
+    }
+    @media (max-width: 820px) {
+      [data-tg="poster"] {
+        display: flex !important;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      [data-tg="stage"] {
+        order: -1;
+        flex: 0 0 42vh;
+        padding: calc(56px + env(safe-area-inset-top)) 16px 24px !important;
+      }
+      [data-tg="pcanvas"] {
+        max-height: calc(42vh - 76px) !important;
+        max-width: 100% !important;
+      }
+      .tg-stage-pill { bottom: 6px; font-size: 10px; padding: 3px 10px; }
+      [data-tg="panel"] {
+        flex: 1;
+        border-right: 0 !important;
+        border-top: 1px solid #1E1E1E;
+        min-height: 0;
+      }
+    }
+
+    [data-tg="count"]:empty { display: none; }
+    [data-tg="count"]::before {
+      content: "";
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      margin-right: 8px;
+      vertical-align: 1px;
+      animation: tg-live 2.4s ease-in-out infinite;
+    }
+    @keyframes tg-live {
+      0%, 100% { opacity: 1; }
+      50% { opacity: .3; }
+    }
+
+    .tg-peer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      will-change: transform;
+      transition: opacity .45s;
+      font-family: 'DM Mono', ui-monospace, monospace;
+      font-size: 11px;
+      letter-spacing: .04em;
+      line-height: 1;
+      pointer-events: none;
+    }
+    .tg-peer svg { display: block; overflow: visible; }
+    .tg-peer span {
+      position: absolute;
+      left: 14px;
+      top: 18px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: #000;
+      white-space: nowrap;
+    }
+
+    .tg-preset-btn {
+      text-align: left;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      font: inherit;
+      padding: 9px 11px;
+      border: 1px solid #2A2A2A;
+      background: transparent;
+      color: #EDEDED;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .tg-preset-btn:hover { border-color: #666; }
+
+    .tg-pal-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+      background: transparent;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+      padding: 6px 6px 8px;
+      border: 1px solid #2A2A2A;
+      transition: border-color 0.15s;
+    }
+    .tg-pal-card:hover { border-color: #8C8C8C !important; }
+    .tg-panel-btn { transition: border-color 0.15s, background 0.15s; }
+    .tg-panel-btn:hover { border-color: #FFFFFF !important; }
+
+    .tg-asset-card {
+      border: 1px solid #262626;
+      border-radius: 10px;
+      padding: 10px;
+      background: #111111;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tg-asset-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .tg-asset-thumb {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px dashed #3A3A3A;
+      background: repeating-conic-gradient(#1A1A1A 0% 25%, #0E0E0E 0% 50%) 50% / 10px 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .tg-asset-thumb img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .tg-mini-btn {
+      background: #1A1A1A;
+      border: 1px solid #333;
+      color: #EAEAEA;
+      font: inherit;
+      font-size: 11px;
+      padding: 5px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .tg-mini-btn:hover { border-color: #FFF; background: #252525; }
+    .tg-mini-btn.danger:hover { border-color: #FF5A4E; color: #FF5A4E; }
+    .tg-num-inp {
+      background: #000;
+      border: 1px solid #2A2A2A;
+      border-radius: 8px;
+      color: #FFF;
+      font: inherit;
+      padding: 7px 9px;
+      width: 100%;
+      outline: none;
+    }
+    .tg-num-inp:focus { border-color: #FFF; }
+    .tg-select {
+      background: #000;
+      border: 1px solid #2A2A2A;
+      border-radius: 8px;
+      color: #FFF;
+      font: inherit;
+      font-size: 11.5px;
+      padding: 7px 9px;
+      width: 100%;
+      outline: none;
+      cursor: pointer;
+    }
+    .tg-select:focus { border-color: #FFF; }
+    .tg-tex-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+    }
+    .tg-tex-chip {
+      background: #111;
+      border: 1px solid #2A2A2A;
+      border-radius: 8px;
+      color: #EDEDED;
+      font: inherit;
+      font-size: 11px;
+      padding: 7px 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .tg-tex-chip:hover { border-color: #777; }
+    .tg-tex-chip.active { border-color: #FFF; background: #1F1F1F; color: #FFF; }
+
+    .tg-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(4px);
+      z-index: 20;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      cursor: default;
+    }
+    .tg-modal {
+      background: #0C0C0C;
+      border: 1px solid #2A2A2A;
+      border-radius: 16px;
+      width: min(760px, 100%);
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      color: #EDEDED;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.9);
+    }
+    .tg-modal-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #1E1E1E;
+    }
+    .tg-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .tg-code-box {
+      background: #050505;
+      border: 1px solid #242424;
+      border-radius: 10px;
+      padding: 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.55;
+      color: #D4D4D4;
+      white-space: pre-wrap;
+      word-break: break-word;
+      max-height: 46vh;
+      overflow-y: auto;
+    }
+
+    .tg-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translate(-50%, 12px);
+      background: rgba(18, 18, 18, 0.94);
+      border: 1px solid #333;
+      border-radius: 999px;
+      padding: 8px 18px;
+      font-size: 11.5px;
+      color: #FFF;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 30;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+    }
+  </style>
+</head>
+<body>
+  <div data-tg="app" id="tg-app">
+    <canvas id="tg-cv" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+    <div data-tg="peers" id="tg-peers" aria-hidden="true" style="position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:4;display:block;"></div>
+    <input id="tg-inp" data-tg="input" aria-label="Type to grow a garden" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" style="position:fixed;left:0;top:0;width:1px;height:1px;margin:0;padding:0;border:0;opacity:0;font-size:16px;color:transparent;background:transparent;caret-color:transparent;pointer-events:none;">
+
+    <div data-tg="modes" id="tg-modes">
+      <button class="tg-mode-btn" id="tg-mode-type">Type</button>
+      <button class="tg-mode-btn" id="tg-mode-poster">Poster</button>
+      <button class="tg-mode-btn" id="tg-mode-stack" style="color:#FFB4A8;">Vite TS Stack</button>
+    </div>
+
+    <div data-tg="bar" id="tg-bar">
+      <div data-tg="hints" id="tg-hints">
+        <span data-tg="fine">type to grow</span><span data-tg="coarse">tap to type</span>
+        <span>·</span>
+        <span>space cuts</span>
+        <span>·</span>
+        <span data-tg="fine">⌫ withers</span><span data-tg="coarse">⌫ withers</span>
+        <span>·</span>
+        <span data-tg="fine">enter clears</span><span data-tg="coarse">return clears</span>
+        <span data-tg="count" id="tg-count"></span>
+      </div>
+      <div data-tg="ctrls" id="tg-ctrls">
+        <div data-tg="pal" id="tg-pal-bar"></div>
+        <button class="tg-action-btn" id="tg-btn-custom-quick" style="border-color:rgba(255,180,168,0.45);color:#FFB4A8;">Sprites</button>
+        <button class="tg-action-btn" id="tg-btn-tex-quick" style="border-color:rgba(159,180,255,0.45);color:#9FB4FF;">Textures</button>
+        <button class="tg-action-btn" id="tg-btn-png">PNG</button>
+        <button class="tg-action-btn" id="tg-btn-svg">SVG</button>
+      </div>
+    </div>
+
+    <div data-tg="poster" id="tg-poster" style="display:none;">
+      <div data-tg="panel" id="tg-panel">
+        <div class="tg-panel-header">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <div style="font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:21px;color:#FFFFFF;">Poster Studio</div>
+            <div id="tg-info-label" style="color:#7FD18B;font-size:10.5px;"></div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;background:#050505;border:1px solid #222;border-radius:9px;">
+            <button id="tg-pver-loop" class="tg-mini-btn" style="border:0;border-radius:6px;padding:6px 8px;font-weight:500;">Video Loop</button>
+            <button id="tg-pver-pic" class="tg-mini-btn" style="border:0;border-radius:6px;padding:6px 8px;font-weight:500;">Still Pic</button>
+          </div>
+
+          <div class="tg-tabs" id="tg-inspector-tabs">
+            <button type="button" class="tg-tab-btn active" data-ptab="design">Design</button>
+            <button type="button" class="tg-tab-btn" data-ptab="format">Size & Motion</button>
+            <button type="button" class="tg-tab-btn" data-ptab="sprites">Sprites</button>
+            <button type="button" class="tg-tab-btn" data-ptab="textures">Textures</button>
+          </div>
+        </div>
+
+        <div class="tg-panel-scroll">
+          <div data-ptab-pane="design" style="display:flex;flex-direction:column;gap:18px;">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="tg-sec-label">
+                <span>Garden Text</span>
+                <button id="tg-btn-reshuffle" class="tg-mini-btn" style="padding:3px 9px;font-size:10px;border-radius:999px;">↻ Regrow Seed</button>
+              </div>
+              <input id="tg-ptext" spellcheck="false" placeholder="Type words…" style="background:#050505;border:1px solid #262626;border-radius:9px;color:#FFFFFF;font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:20px;padding:9px 12px;outline:none;transition:border-color .15s;">
+            </div>
+
+            <div id="tg-pic-scrubber-wrap" style="display:none;flex-direction:column;gap:6px;padding:10px;background:#121212;border:1px solid #242424;border-radius:9px;">
+              <div style="display:flex;justify-content:space-between;font-size:11px;color:#BDBDBD;">
+                <span>Bloom Pose Timeline</span>
+                <span id="tg-scrub-val" style="color:#FFF;">65%</span>
+              </div>
+              <input type="range" id="tg-pic-scrub" min="0" max="1" step="0.01" value="0.65" style="width:100%;">
+            </div>
+
+            <div id="tg-loop-cfg-wrap" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px;background:#121212;border:1px solid #242424;border-radius:9px;">
+              <div>
+                <div style="color:#888;font-size:10px;margin-bottom:4px;">Loop Duration</div>
+                <select id="tg-loop-dur" class="tg-select">
+                  <option value="0">Preset Default</option>
+                  <option value="2000">2s Short</option>
+                  <option value="4000">4s Seamless</option>
+                  <option value="6000">6s Standard</option>
+                  <option value="10000">10s Extended</option>
+                </select>
+              </div>
+              <div>
+                <div style="color:#888;font-size:10px;margin-bottom:4px;">Frame Rate</div>
+                <select id="tg-loop-fps" class="tg-select">
+                  <option value="24">24 fps (Film)</option>
+                  <option value="30" selected>30 fps (Social)</option>
+                  <option value="60">60 fps (Smooth)</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="tg-sec-label"><span>Color Palette</span></div>
+              <div id="tg-pal-cards" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;"></div>
+            </div>
+          </div>
+
+          <div data-ptab-pane="format" style="display:none;flex-direction:column;gap:18px;">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="tg-sec-label"><span>Custom Dimensions (px)</span></div>
+              <div style="display:grid;grid-template-columns:1fr auto 1fr auto;gap:6px;align-items:center;">
+                <input type="number" id="tg-cw" class="tg-num-inp" min="200" max="4096" step="10" value="1080" title="Width (px)">
+                <span style="color:#666;">×</span>
+                <input type="number" id="tg-ch" class="tg-num-inp" min="200" max="4096" step="10" value="1080" title="Height (px)">
+                <button id="tg-btn-swap-wh" class="tg-mini-btn" title="Swap Width & Height">⇄</button>
+              </div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="tg-sec-label"><span>Social & Device Presets</span></div>
+              <div id="tg-size-list" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+            </div>
+
+            <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid #1C1C1C;padding-top:14px;">
+              <div class="tg-sec-label"><span>Botanical Motion</span></div>
+              <div id="tg-preset-list" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;"></div>
+            </div>
+          </div>
+
+          <div data-ptab-pane="sprites" style="display:none;flex-direction:column;gap:12px;">
+            <div class="tg-sec-label">
+              <span>Custom Botanical Sprites</span>
+              <span style="color:#7FD18B;font-size:9.5px;">PNG · SVG · JPG · WEBP</span>
+            </div>
+            <div style="color:#888;font-size:11px;line-height:1.4;">
+              Replace vector blooms, leaves, or stalks with your own images. Enable <strong>Auto No-BG</strong> to strip solid/white backgrounds automatically.
+            </div>
+            <div id="tg-sprite-manager" style="display:flex;flex-direction:column;gap:8px;"></div>
+          </div>
+
+          <div data-ptab-pane="textures" style="display:none;flex-direction:column;gap:12px;">
+            <div class="tg-sec-label">
+              <span>Texture & Blend Compositor</span>
+              <span style="color:#9FB4FF;font-size:9.5px;">Soft · Hard · Overlay</span>
+            </div>
+            <div id="tg-tex-manager" style="display:flex;flex-direction:column;gap:10px;"></div>
+          </div>
+        </div>
+
+        <div class="tg-panel-footer">
+          <div class="tg-sec-label">
+            <span id="tg-export-head">Export · 1080 × 1080</span>
+            <span id="tg-status" style="color:#7FD18B;text-transform:none;letter-spacing:0;"></span>
+          </div>
+
+          <div id="tg-export-pic-box" style="display:none;flex-direction:column;gap:6px;">
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;">
+              <button class="tg-tex-chip active" data-pic-fmt="png">PNG</button>
+              <button class="tg-tex-chip" data-pic-fmt="jpeg">JPG</button>
+              <button class="tg-tex-chip" data-pic-fmt="webp">WebP</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr auto;gap:6px;">
+              <button id="tg-btn-export-poster-pic" style="background:#FFFFFF;border:0;color:#000;font:inherit;font-weight:500;padding:10px 12px;border-radius:9px;cursor:pointer;">Download Still Pic</button>
+              <button id="tg-btn-export-poster-svg" class="tg-mini-btn" style="padding:10px 12px;border-radius:9px;" title="Download Vector SVG">.SVG</button>
+            </div>
+          </div>
+
+          <div id="tg-export-loop-box" style="display:flex;flex-direction:column;gap:6px;">
+            <button id="tg-btn-export-video" style="background:#FFFFFF;border:0;color:#000;font:inherit;font-weight:500;padding:10px 12px;border-radius:9px;cursor:pointer;"></button>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+              <button id="tg-btn-export-frames" class="tg-mini-btn" style="padding:8px 10px;border-radius:8px;">PNG Frames (.zip)</button>
+              <button id="tg-btn-export-poster-png" class="tg-mini-btn" style="padding:8px 10px;border-radius:8px;">Snapshot (.png)</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div data-tg="stage" id="tg-stage">
+        <canvas id="tg-pcv" data-tg="pcanvas" width="1080" height="1080"></canvas>
+        <div class="tg-stage-pill" id="tg-stage-meta">1080 × 1080 · Breathe · Rose noir</div>
+      </div>
+    </div>
+
+    <!-- Modal 1: Quick Custom Sprite Manager for Type Mode -->
+    <div class="tg-modal-backdrop" id="tg-modal-sprites">
+      <div class="tg-modal" style="width:min(480px, 100%);">
+        <div class="tg-modal-head">
+          <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;">Custom Flower, Leaf & Stalk Sprites</span>
+          <button class="tg-mini-btn" id="tg-close-sprites">Close</button>
+        </div>
+        <div class="tg-modal-body">
+          <div style="color:#9E9E9E;font-size:11.5px;line-height:1.45;">
+            Upload transparent <strong>.png, .svg, .webp</strong> or solid-background <strong>.jpg/.jpeg</strong>. Toggle <strong>Auto No-BG</strong> to strip white/solid backgrounds in browser memory. Saved locally in IndexedDB without server uploads.
+          </div>
+          <div id="tg-sprite-manager-modal" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 2: Graphic Texture & Blend Layer -->
+    <div class="tg-modal-backdrop" id="tg-modal-tex">
+      <div class="tg-modal" style="width:min(480px, 100%);">
+        <div class="tg-modal-head">
+          <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#9FB4FF;">Graphic Texture & Blend Layer</span>
+          <button class="tg-mini-btn" id="tg-close-tex">Close</button>
+        </div>
+        <div class="tg-modal-body">
+          <div style="color:#9E9E9E;font-size:11.5px;line-height:1.45;">
+            Stack procedural graphic textures (<strong>Film Grain, Paper Weave, Halftone, Riso Dust, Scanlines</strong>) or upload your own still image / looping video texture with real-time <strong>Soft Light, Hard Light, Overlay, Multiply, Screen</strong> compositing.
+          </div>
+          <div id="tg-tex-manager-modal" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal 3: Zero-Cost 12k+ Users Architecture & Prompt -->
+    <div class="tg-modal-backdrop" id="tg-modal-stack">
+      <div class="tg-modal">
+        <div class="tg-modal-head">
+          <span style="font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:#FFB4A8;">Vite + TypeScript Master Prompt</span>
+          <div style="display:flex;gap:8px;">
+            <button class="tg-mini-btn" id="tg-copy-prompt" style="border-color:#7FD18B;color:#7FD18B;">Copy Prompt</button>
+            <button class="tg-mini-btn" id="tg-close-stack">Close</button>
+          </div>
+        </div>
+        <div class="tg-modal-body">
+          <div style="color:#BDBDBD;font-size:12px;line-height:1.5;">
+            Zero-cost storage architecture for <strong>12,000+ users</strong>: All custom images (.png, .svg, .jpg, .webp), background-removed alpha bitmaps, and garden presets stay 100% client-side in <strong>IndexedDB + localStorage</strong>. Server bandwidth is static bundle only. Shareable garden URLs use compressed URL hashes via <strong>lz-string</strong> with zero database reads or writes.
+          </div>
+          <div class="tg-code-box" id="tg-prompt-content"># ROLE & OBJECTIVE
+Act as a Staff Creative Technologist and Senior Full-Stack TypeScript Architect.
+Build **Type Garden Studio**, a production-ready generative botanical typography & motion poster studio using **Vite + TypeScript**.
+The architecture must support **12,000+ concurrent/monthly users with $0 cloud storage and $0 database cost** by keeping all user assets, processed alpha bitmaps, and studio states strictly inside browser storage (IndexedDB + localStorage + URL hash state).
+
+# 1. TECH STACK & ZERO-COST 12,000+ USER ARCHITECTURE
+- Frontend Bundler & Language: Vite 6 + TypeScript 5 (strict: true, modular ES2022, zero heavy runtime dependencies).
+- Rendering & Export Pipeline:
+  - HTML5 2D &lt;canvas&gt; for real-time 60fps interactive rendering and compositing.
+  - OffscreenCanvas (or hidden &lt;canvas&gt;) for corner-sampled chroma-key background removal and deterministic frame rendering.
+  - MediaRecorder (video/mp4;codecs=avc1.42E01E / video/webm;codecs=vp9) + custom zero-dependency CRC32 .zip binary packer for PNG frame sequences.
+- $0-Cost Client Storage Layer (src/storage/localStore.ts):
+  1. localStorage (tg_studio_v2_state): Stores active palette, poster dimensions (pw, ph), motion preset, poster mode (loop vs pic), timeline scrub (0..1), loop duration, FPS, and texture blend config.
+  2. IndexedDB (tg_assets_db): Stores user-uploaded custom sprites (.png, .svg, .jpg, .jpeg, .webp), background-stripped alpha Blobs, custom still textures, and looping video textures (.mp4, .webm).
+  3. Shareable State via URL Hash (#g=...): Encode seed + text + palette + preset into URL hash.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="tg-toast" id="tg-toast">Link copied to clipboard!</div>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
+</body>
+</html>
