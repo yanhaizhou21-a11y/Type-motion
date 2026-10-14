@@ -4,6 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <title>Type Garden Studio</title>
+  <meta name="description" content="Type words to grow procedural vector botanical vines, blooming roses, and leaves in real-time, or design social media and device posters with zero server cost.">
+  <meta name="keywords" content="type garden, botanical typography, procedural vines, roses, generative art, social media posters, creative coding">
+  <meta name="author" content="Type Garden Studio (Reference: Akshat Agarwal)">
+  <meta name="theme-color" content="#000000">
+
+  <!-- Open Graph / WhatsApp / Telegram / LinkedIn / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Type Garden Studio">
+  <meta property="og:title" content="Type Garden Studio: Generative Botanical Typography & Poster Studio">
+  <meta property="og:description" content="Type words to grow procedural vector botanical vines, blooming roses, and leaves in real-time, or design social media and device posters with zero server cost.">
+  <meta property="og:image" content="./og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Type Garden Studio botanical typography preview card">
+
+  <!-- Twitter / X Cards -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Type Garden Studio: Generative Botanical Typography & Poster Studio">
+  <meta name="twitter:description" content="Type words to grow procedural vector botanical vines, blooming roses, and leaves in real-time, or design social media and device posters with zero server cost.">
+  <meta name="twitter:image" content="./og.png">
+  <meta name="twitter:site" content="@art_akshat">
+  <meta name="twitter:creator" content="@art_akshat">
+
   <link rel="icon" type="image/svg+xml" href="./favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -597,15 +620,19 @@
         <button class="tg-action-btn" id="tg-btn-tex-quick" style="border-color:rgba(159,180,255,0.45);color:#9FB4FF;">Textures</button>
         <button class="tg-action-btn" id="tg-btn-png">PNG</button>
         <button class="tg-action-btn" id="tg-btn-svg">SVG</button>
+        <button class="tg-action-btn" id="tg-btn-share" style="border-color:rgba(127,209,139,0.45);color:#7FD18B;">Share</button>
       </div>
     </div>
 
     <div data-tg="poster" id="tg-poster" style="display:none;">
       <div data-tg="panel" id="tg-panel">
         <div class="tg-panel-header">
-          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
             <div style="font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:21px;color:#FFFFFF;">Poster Studio</div>
-            <div id="tg-info-label" style="color:#7FD18B;font-size:10.5px;"></div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div id="tg-info-label" style="color:#7FD18B;font-size:10.5px;"></div>
+              <button id="tg-btn-poster-share" class="tg-mini-btn" style="border-color:rgba(127,209,139,0.45);color:#7FD18B;padding:3px 9px;">Share</button>
+            </div>
           </div>
 
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;background:#050505;border:1px solid #222;border-radius:9px;">

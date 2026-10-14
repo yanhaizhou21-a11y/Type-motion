@@ -21,6 +21,7 @@ import { TextureCompositor } from '../src/engine/textures';
 import { layoutCore, buildPoster, exportPosterSvgString } from '../src/engine/poster';
 import { PRESETS, SIZES, RAW_PALETTES, TEX_TYPES, BLENDS, getPalette } from '../src/constants';
 import { SpriteRecord, TextureConfig } from '../src/types';
+import { computeSeoMetadata } from '../src/engine/seo';
 
 describe('Constants & Configuration', () => {
   it('loads all 10 raw palettes and formats them correctly', () => {
@@ -330,3 +331,33 @@ describe('Graphic Design Textures & Poster SVG Export', () => {
     expect(svg).toContain('</svg>');
   });
 });
+
+describe('SEO & Dynamic URL Metadata Engine', () => {
+  it('generates rich default SEO metadata for homepage', () => {
+    const meta = computeSeoMetadata();
+    expect(meta.title).toContain('Type Garden Studio');
+    expect(meta.description).toContain('procedural vector botanical vines');
+    expect(meta.ogTitle).toContain('Type Garden Studio');
+    expect(meta.imageUrl).toContain('og.png');
+    expect(meta.keywords).toContain('botanical typography');
+  });
+
+  it('generates dynamic personalized metadata when text and palette are provided', () => {
+    const meta = computeSeoMetadata('BLOOM', 1, 'reach');
+    expect(meta.title).toBe('Type Garden: "BLOOM" · Botanical Typography');
+    expect(meta.ogTitle).toBe('Type Garden: "BLOOM"');
+    expect(meta.description).toContain('Paper');
+    expect(meta.description).toContain('Reach');
+    expect(meta.ogDescription).toContain('"BLOOM"');
+    expect(meta.keywords).toContain('BLOOM');
+    expect(meta.keywords).toContain('Paper');
+  });
+
+  it('handles multi-line text cleanly without breaking meta tags', () => {
+    const meta = computeSeoMetadata('WILD\nFLOWERS\tFOREVER', 0, 'breathe');
+    expect(meta.title).toBe('Type Garden: "WILD FLOWERS FOREVER" · Botanical Typography');
+    expect(meta.description).not.toContain('\n');
+    expect(meta.description).not.toContain('\t');
+  });
+});
+

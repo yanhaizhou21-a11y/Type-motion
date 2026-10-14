@@ -52,6 +52,7 @@ import {
 } from './engine/exporter';
 import { StudioInspector } from './ui/studioInspector';
 import { ModalManager } from './ui/modals';
+import { initSeoListener, updateDynamicSeo } from './engine/seo';
 
 export class TypeGardenApp {
   public state: AppState = {
@@ -146,10 +147,12 @@ export class TypeGardenApp {
   private vmime = detectSupportedVideoMime();
 
   constructor() {
+    initSeoListener();
     this.loadState();
     this.initDOM();
     this.initPeers();
     this.initLoop();
+    updateDynamicSeo(this.state.text, this.state.palette, this.state.preset);
   }
 
   private loadState(): void {
@@ -211,6 +214,37 @@ export class TypeGardenApp {
     const hash = encodeGardenStateToUrl(this.state);
     if (hash && window.location.hash !== hash) {
       window.history.replaceState(null, '', hash);
+    }
+    updateDynamicSeo(this.state.text, this.state.palette, this.state.preset);
+  }
+
+  private async shareGardenUrl(): Promise<void> {
+    const hash = encodeGardenStateToUrl(this.state);
+    const url = `${window.location.origin}${window.location.pathname}${hash}`;
+    const clean = (this.state.text || '').trim();
+    const title = clean.length > 0 ? `Type Garden: "${clean}"` : 'Type Garden Studio';
+    const text = clean.length > 0
+      ? `Check out my botanical typography for "${clean}" in Type Garden Studio!`
+      : 'Type words to grow blooming roses and botanical vines in Type Garden Studio!';
+
+    if (
+      typeof navigator !== 'undefined' &&
+      navigator.share &&
+      /mobile|android|iphone|ipad/i.test(navigator.userAgent || '')
+    ) {
+      try {
+        await navigator.share({ title, text, url });
+        return;
+      } catch {
+        // Fallback to clipboard
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(url);
+      this.modals.showToast('Garden share link copied to clipboard!');
+    } catch {
+      this.modals.showToast(url);
     }
   }
 
@@ -366,6 +400,13 @@ export class TypeGardenApp {
       this.saveTypeSvg();
       this.refocus();
     });
+
+    const onShare = async () => {
+      await this.shareGardenUrl();
+      this.refocus();
+    };
+    document.getElementById('tg-btn-share')?.addEventListener('click', onShare);
+    document.getElementById('tg-btn-poster-share')?.addEventListener('click', onShare);
 
     // Tap/Click to focus, spawn fly, or double-tap plant rose
     this.appEl.addEventListener('pointerdown', (ev) => {

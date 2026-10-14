@@ -85,19 +85,31 @@ Comprehensive aspect ratios and resolutions with instant live preview:
   - **Video Loop Mode:** MediaRecorder 16Mbps stream capture (MP4/WebM) and pure TypeScript IEEE 802.3 CRC32 PKZIP PNG frame sequence.
   - **Still Pic Mode:** Bloom timeline scrubber (0% bud to 100% full bloom) with instant 1x/2x/3x PNG and vector SVG export.
 
+### 6. Dynamic SEO & Social Link Previews (`src/engine/seo.ts`)
+- **Adaptive URL Metadata:** Automatically detects URL hash state (`#g=...`) and query parameters (`?text=...`) to personalize `<title>`, Open Graph tags (`og:title`, `og:description`), Twitter Card metadata, and canonical links based on the specific words and palette created by the gardener.
+- **Social Sharing:** In-app Share buttons with Web Share API integration on mobile devices and automatic clipboard copy fallback.
+- **High-Resolution Open Graph Image:** Bundles `public/og.png` (1200 x 630) and `public/favicon.svg` for rich preview cards across WhatsApp, Telegram, Discord, X/Twitter, Facebook, and LinkedIn.
+- **Structured Data:** Embeds Schema.org `WebApplication` JSON-LD metadata for Google search indexing.
+
 ---
 
 ## Project Structure
 
 ```
 TYPE-GARDEN-POSTER/
-├── index.html                  # Main responsive UI shell (desktop split grid & mobile responsive stage)
+├── index.html                  # Main responsive UI shell with Open Graph and Twitter Card tags
 ├── package.json                # Dependencies and build scripts
 ├── tsconfig.json               # TypeScript 5 strict configuration
-├── vite.config.ts              # Vite 6 bundler config
+├── vite.config.ts              # Vite 6 bundler config (base: './')
+├── vercel.json                 # Vercel deployment and static cache headers
 ├── .gitignore                  # Git ignore rules
+├── .github/
+│   └── workflows/deploy.yml    # Automated GitHub Actions deployment pipeline
+├── public/
+│   ├── favicon.svg             # Transparent botanical T-M vector favicon
+│   └── og.png                  # High-resolution 1200x630 social sharing preview card
 ├── tests/
-│   └── garden.test.ts          # Comprehensive Vitest test suite (23 unit tests)
+│   └── garden.test.ts          # Comprehensive Vitest test suite (26 unit tests)
 ├── src/
 │   ├── main.ts                 # Application lifecycle, keyboard IME, and sync
 │   ├── types.ts                # Strict TypeScript interfaces
@@ -112,7 +124,8 @@ TYPE-GARDEN-POSTER/
 │   │   ├── botanical.ts        # Procedural vine, leaf, rose petal, and butterfly generator
 │   │   ├── poster.ts           # Multi-line typography layout engine, portrait bias, and SVG exporter
 │   │   ├── renderer.ts         # Canvas2D & SVG hybrid vector/sprite renderer
-│   │   └── exporter.ts         # 16Mbps MediaRecorder video stream (MP4/WebM) + CRC32 ZIP frame exporter
+│   │   ├── exporter.ts         # 16Mbps MediaRecorder video stream (MP4/WebM) + CRC32 ZIP frame exporter
+│   │   └── seo.ts              # URL-adaptive dynamic metadata, Open Graph, and Twitter Cards engine
 │   └── ui/
 │       ├── modals.ts           # Sprite manager, texture selector, credits modal, and toasts
 │       └── studioInspector.ts  # 4-tab Poster Studio inspector (Design, Size & Motion, Sprites, Textures)
