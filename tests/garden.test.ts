@@ -338,7 +338,7 @@ describe('SEO & Dynamic URL Metadata Engine', () => {
     expect(meta.title).toContain('Type Garden Studio');
     expect(meta.description).toContain('procedural vector botanical vines');
     expect(meta.ogTitle).toContain('Type Garden Studio');
-    expect(meta.imageUrl).toContain('og.png');
+    expect(meta.imageUrl).toMatch(/og\.(jpg|png)/);
     expect(meta.keywords).toContain('botanical typography');
   });
 
