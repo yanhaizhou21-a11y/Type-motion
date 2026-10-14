@@ -80,7 +80,9 @@ export function computeSeoMetadata(
     }
   }
 
-  const origin = typeof window !== 'undefined' && window.location ? window.location.origin : 'https://type-garden.vercel.app';
+  const origin = typeof window !== 'undefined' && window.location && window.location.origin && window.location.origin !== 'null'
+    ? window.location.origin
+    : 'https://type-motion-mu.vercel.app';
   const pathname = typeof window !== 'undefined' && window.location ? window.location.pathname : '/';
   const fullUrl = typeof window !== 'undefined' && window.location ? window.location.href : `${origin}${pathname}`;
   const baseImgUrl = `${origin}${pathname.endsWith('/') ? pathname : pathname + '/'}og.png`;
@@ -149,9 +151,11 @@ export function updateDynamicSeo(
   ensureMetaTag('property', 'og:description', meta.ogDescription);
   ensureMetaTag('property', 'og:url', meta.canonicalUrl);
   ensureMetaTag('property', 'og:image', meta.imageUrl);
+  ensureMetaTag('property', 'og:image:secure_url', meta.imageUrl);
+  ensureMetaTag('property', 'og:image:type', 'image/png');
   ensureMetaTag('property', 'og:image:width', '1200');
   ensureMetaTag('property', 'og:image:height', '630');
-  ensureMetaTag('property', 'og:image:alt', 'Type Garden Studio botanical typography preview card');
+  ensureMetaTag('property', 'og:image:alt', 'Type Garden Studio botanical typography overgrown with blooming roses');
 
   // 4. Twitter / X Cards
   ensureMetaTag('name', 'twitter:card', 'summary_large_image');
