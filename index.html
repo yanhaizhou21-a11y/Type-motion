@@ -341,257 +341,28 @@
       box-shadow: 0 24px 64px rgba(0,0,0,0.85);
       object-fit: contain;
     }
-    /* Mobile Specific Controls */
-    [data-tg="mobile-bar"] {
-      display: none;
-    }
-    .tg-poster-mob-bar {
-      display: none;
-    }
-    .tg-drawer-bar {
-      display: none;
-    }
-
     @media (max-width: 820px) {
-      /* Hide dense desktop bottom bar on mobile */
-      [data-tg="bar"] {
-        display: none !important;
-      }
-
-      /* Floating Mobile Typing Bar */
-      [data-tg="mobile-bar"] {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        position: fixed;
-        left: calc(12px + env(safe-area-inset-left));
-        right: calc(12px + env(safe-area-inset-right));
-        bottom: calc(12px + env(safe-area-inset-bottom));
-        z-index: 10;
-        pointer-events: auto;
-      }
-
-      .tg-mob-row-top {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .tg-mob-pal {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        overflow-x: auto;
-        padding: 4px 6px;
-        background: rgba(14, 14, 14, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        border-radius: 999px;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        scrollbar-width: none;
-      }
-      .tg-mob-pal::-webkit-scrollbar { display: none; }
-
-      .tg-mob-row-main {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .tg-mob-input-box {
-        flex: 1;
-        min-height: 46px;
-        background: rgba(12, 12, 12, 0.88);
-        border: 1px solid rgba(255, 255, 255, 0.18);
-        border-radius: 24px;
-        padding: 0 16px;
-        display: flex;
-        align-items: center;
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        cursor: text;
-        overflow: hidden;
-      }
-
-      .tg-mob-input-box:focus-within, .tg-mob-input-box.active {
-        border-color: #FFFFFF;
-        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
-      }
-
-      #tg-mob-text-display {
-        font-family: 'DM Mono', monospace;
-        font-size: 14px;
-        color: #FFFFFF;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .tg-mob-text-empty {
-        color: rgba(255, 255, 255, 0.45) !important;
-      }
-
-      .tg-mob-pill-btn {
-        min-height: 38px;
-        min-width: 44px;
-        padding: 6px 14px;
-        border-radius: 999px;
-        background: rgba(20, 20, 20, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.15);
-        color: #EEEEEE;
-        font-family: 'DM Mono', monospace;
-        font-size: 12px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        cursor: pointer;
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        touch-action: manipulation;
-      }
-      .tg-mob-pill-btn:active {
-        background: rgba(45, 45, 45, 0.95);
-        border-color: #FFFFFF;
-      }
-
-      .tg-mob-cta-btn {
-        min-height: 46px;
-        min-width: 44px;
-        padding: 0 18px;
-        border-radius: 24px;
-        background: #FFFFFF;
-        color: #000000;
-        border: 0;
-        font-family: 'DM Mono', monospace;
-        font-size: 13px;
-        font-weight: 600;
-        letter-spacing: 0.02em;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        cursor: pointer;
-        white-space: nowrap;
-        touch-action: manipulation;
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-      }
-      .tg-mob-cta-btn:active {
-        transform: scale(0.97);
-        background: #E0E0E0;
-      }
-
-      .tg-mob-cta-sm {
-        min-height: 38px;
-        padding: 0 14px;
-        font-size: 11.5px;
-        border-radius: 999px;
-      }
-
-      /* Poster Mobile Layout: Full Center Stage + Bottom Sheet Drawer */
       [data-tg="poster"] {
         display: flex !important;
-        flex-direction: column !important;
-        position: fixed !important;
-        inset: 0 !important;
-        z-index: 20;
-        background: #050505;
-      }
-
-      .tg-poster-mob-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: calc(10px + env(safe-area-inset-top)) 14px 10px;
-        background: rgba(10, 10, 10, 0.92);
-        border-bottom: 1px solid #1C1C1C;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        z-index: 25;
-      }
-
-      .tg-poster-mob-title {
-        font-family: 'Playfair Display', Georgia, serif;
-        font-weight: 700;
-        font-size: 16px;
-        color: #FFFFFF;
-      }
-
-      [data-tg="stage"] {
-        flex: 1 1 auto !important;
-        height: auto !important;
-        max-height: none !important;
-        order: 0 !important;
-        padding: 16px 16px calc(24px + env(safe-area-inset-bottom)) !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
+        flex-direction: column;
         overflow: hidden;
       }
-
+      [data-tg="stage"] {
+        order: -1;
+        flex: 0 0 42vh;
+        padding: calc(56px + env(safe-area-inset-top)) 16px 24px !important;
+      }
       [data-tg="pcanvas"] {
-        max-height: calc(100vh - 150px) !important;
+        max-height: calc(42vh - 76px) !important;
         max-width: 100% !important;
-        width: auto !important;
-        height: auto !important;
       }
-
-      /* Mobile Drawer for Inspector Panel */
+      .tg-stage-pill { bottom: 6px; font-size: 10px; padding: 3px 10px; }
       [data-tg="panel"] {
-        position: fixed !important;
-        left: 0 !important;
-        right: 0 !important;
-        bottom: 0 !important;
-        top: auto !important;
-        height: 78vh !important;
-        max-height: 78vh !important;
-        border-radius: 20px 20px 0 0 !important;
-        border-top: 1px solid #333333 !important;
+        flex: 1;
         border-right: 0 !important;
-        box-shadow: 0 -8px 36px rgba(0, 0, 0, 0.8) !important;
-        z-index: 30;
-        transform: translateY(105%);
-        transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-        display: flex !important;
-        flex-direction: column !important;
+        border-top: 1px solid #1E1E1E;
+        min-height: 0;
       }
-
-      [data-tg="panel"].open {
-        transform: translateY(0) !important;
-      }
-
-      .tg-drawer-bar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 10px 16px 6px;
-        background: #0E0E0E;
-        border-radius: 20px 20px 0 0;
-        cursor: pointer;
-      }
-
-      .tg-drawer-handle {
-        width: 38px;
-        height: 4px;
-        border-radius: 999px;
-        background: #555555;
-        margin: 0 auto;
-      }
-
-      .tg-drawer-close-btn {
-        background: transparent;
-        border: 0;
-        color: #888888;
-        font-size: 18px;
-        padding: 6px 10px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .tg-drawer-close-btn:hover { color: #FFFFFF; }
     }
 
     [data-tg="count"]:empty { display: none; }
@@ -863,43 +634,8 @@
       </div>
     </div>
 
-    <!-- Mobile Type Mode Floating Input & Action Bar -->
-    <div data-tg="mobile-bar" id="tg-mobile-bar">
-      <div class="tg-mob-row-top">
-        <div id="tg-mob-pal-bar" class="tg-mob-pal"></div>
-        <button id="tg-mob-btn-clear" class="tg-mob-pill-btn" type="button" title="Bersihkan teks">Hapus</button>
-      </div>
-      <div class="tg-mob-row-main">
-        <div class="tg-mob-input-box" id="tg-mob-input-box" role="button" tabindex="0" aria-label="Ketik untuk menumbuhkan bunga">
-          <span id="tg-mob-text-display" class="tg-mob-text-empty">Sentuh untuk mengetik...</span>
-        </div>
-        <button id="tg-mob-btn-goto-poster" class="tg-mob-cta-btn" type="button">
-          <span>Poster</span>
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-    </div>
-
     <div data-tg="poster" id="tg-poster" style="display:none;">
-      <!-- Mobile Poster Navigation Top Bar -->
-      <div id="tg-poster-mobile-bar" class="tg-poster-mob-bar">
-        <button id="tg-btn-mobile-back-type" class="tg-mob-pill-btn" type="button">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M10 13L5 8L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          <span>Ketik Teks</span>
-        </button>
-        <div class="tg-poster-mob-title">Poster Studio</div>
-        <button id="tg-btn-mobile-open-drawer" class="tg-mob-cta-btn tg-mob-cta-sm" type="button">
-          <span>Atur Desain</span>
-        </button>
-      </div>
-
       <div data-tg="panel" id="tg-panel">
-        <!-- Mobile Bottom Sheet Drawer Handle & Close -->
-        <div class="tg-drawer-bar" id="tg-drawer-bar">
-          <div class="tg-drawer-handle"></div>
-          <button id="tg-drawer-close" class="tg-drawer-close-btn" type="button" aria-label="Tutup panel">✕</button>
-        </div>
-
         <div class="tg-panel-header">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             <div style="font-family:'Playfair Display',Georgia,serif;font-weight:700;font-size:21px;color:#FFFFFF;">Poster Studio</div>
