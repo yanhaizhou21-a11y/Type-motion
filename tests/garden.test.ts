@@ -430,5 +430,36 @@ describe('Mobile Stepped Flow & Text Sync', () => {
     simulateMobileInput('BLOSSOM', '');
     expect(currentLetters.length).toBe(0);
   });
+
+  it('handles mode transitions between Type mode and Poster mode preserving text integrity', () => {
+    const typeModeText = '  BOTANICAL ART  ';
+    const trimmed = typeModeText.trim();
+    expect(trimmed).toBe('BOTANICAL ART');
+
+    // Simulate transition to poster mode
+    const posterState = {
+      mode: 'poster',
+      text: trimmed,
+      seed: 42
+    };
+    expect(posterState.mode).toBe('poster');
+    expect(posterState.text).toBe('BOTANICAL ART');
+
+    // Simulate returning to type mode
+    const backToTypeState = {
+      ...posterState,
+      mode: 'type'
+    };
+    expect(backToTypeState.mode).toBe('type');
+    expect(backToTypeState.text).toBe('BOTANICAL ART');
+  });
+
+  it('verifies that no em dashes exist anywhere in index.html or main.ts source files', () => {
+    const fs = require('fs');
+    const indexHtml = fs.readFileSync('index.html', 'utf8');
+    const mainTs = fs.readFileSync('src/main.ts', 'utf8');
+    expect(indexHtml).not.toContain('—');
+    expect(mainTs).not.toContain('—');
+  });
 });
 

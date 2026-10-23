@@ -128,6 +128,7 @@ export class TypeGardenApp {
   private _kd = false;
   private touch = false;
   private iv = '\u200b';
+  private prevMobVal = '';
 
   private flies: Butterfly[] = [];
   private perch: PerchPoint[] = [];
@@ -359,6 +360,13 @@ export class TypeGardenApp {
     document.getElementById('tg-mode-type')?.addEventListener('click', () => {
       if (this.state.mode !== 'type') {
         this.setState({ mode: 'type' });
+        if (this.letters.length === 0 && this.state.text) {
+          const now = performance.now();
+          for (const ch of this.state.text) {
+            this.addLetter(ch, now);
+          }
+        }
+        this.syncMobileInputValue();
         this.resize();
         this.refocus();
       }
@@ -396,13 +404,12 @@ export class TypeGardenApp {
     });
 
     // Mobile input & stepped poster flow
-    let prevMobVal = '';
     const mobInput = document.getElementById('tg-mob-input') as HTMLInputElement | null;
     mobInput?.addEventListener('input', () => {
       const cur = mobInput.value;
       let p = 0;
-      while (p < prevMobVal.length && p < cur.length && prevMobVal[p] === cur[p]) p++;
-      const dels = prevMobVal.length - p;
+      while (p < this.prevMobVal.length && p < cur.length && this.prevMobVal[p] === cur[p]) p++;
+      const dels = this.prevMobVal.length - p;
       const adds = cur.slice(p);
       const now = performance.now();
       this.lastKey = now;
@@ -415,13 +422,13 @@ export class TypeGardenApp {
           this.addLetter(ch, now);
         }
       }
-      prevMobVal = cur;
+      this.prevMobVal = cur;
     });
 
     document.getElementById('tg-mob-btn-clear')?.addEventListener('click', (e) => {
       e.stopPropagation();
       if (mobInput) mobInput.value = '';
-      prevMobVal = '';
+      this.prevMobVal = '';
       this.letters = [];
       this.layout();
       this.refocus();
@@ -440,6 +447,13 @@ export class TypeGardenApp {
     document.getElementById('tg-mob-back-type')?.addEventListener('click', (e) => {
       e.stopPropagation();
       this.setState({ mode: 'type' });
+      if (this.letters.length === 0 && this.state.text) {
+        const now = performance.now();
+        for (const ch of this.state.text) {
+          this.addLetter(ch, now);
+        }
+      }
+      this.syncMobileInputValue();
       this.refocus();
     });
 
@@ -555,6 +569,7 @@ export class TypeGardenApp {
     this.rebuildPosterData();
     document.body.setAttribute('data-tg-mode', this.state.mode);
     document.body.setAttribute('data-mob-view', 'preview');
+    this.syncMobileInputValue();
     if (this.state.text && this.letters.length === 0) {
       const now = performance.now();
       for (const ch of this.state.text) {
@@ -603,15 +618,7 @@ export class TypeGardenApp {
 
     document.body.setAttribute('data-tg-mode', s.mode);
     if (isType) {
-      const mobInp = document.getElementById('tg-mob-input') as HTMLInputElement | null;
-      if (mobInp && mobInp !== document.activeElement) {
-        const live = this.liveText();
-        if (live.length > 0) {
-          mobInp.value = live;
-        } else if (this.state.text && this.letters.length === 0) {
-          mobInp.value = this.state.text;
-        }
-      }
+      this.syncMobileInputValue();
     }
     this.cv.style.display = isType ? 'block' : 'none';
     const peersEl = document.getElementById('tg-peers');
@@ -839,6 +846,17 @@ export class TypeGardenApp {
       } else if (this.inp) {
         this.inp.focus({ preventScroll: true });
       }
+    }
+  }
+
+  private syncMobileInputValue(): void {
+    const mobInp = document.getElementById('tg-mob-input') as HTMLInputElement | null;
+    if (!mobInp) return;
+    const live = this.liveText();
+    const targetVal = live.length > 0 ? live : (this.state.text || '');
+    if (mobInp.value !== targetVal && mobInp !== document.activeElement) {
+      mobInp.value = targetVal;
+      this.prevMobVal = targetVal;
     }
   }
 
