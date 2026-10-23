@@ -127,7 +127,6 @@ export class TypeGardenApp {
   private composing = false;
   private _kd = false;
   private touch = false;
-  private ptype = 'mouse';
   private iv = '\u200b';
 
   private flies: Butterfly[] = [];
@@ -335,9 +334,6 @@ export class TypeGardenApp {
       this.mx = e.clientX;
       this.my = e.clientY;
     });
-    window.addEventListener('pointerdown', (e) => {
-      this.ptype = e.pointerType || 'mouse';
-    }, true);
     window.addEventListener('pointerup', (e) => {
       if (e.pointerType && e.pointerType !== 'mouse') this.mx = null;
     });
@@ -375,26 +371,75 @@ export class TypeGardenApp {
       }
     });
 
-    // Color Swatches in bottom bar
+    // Color Swatches in bottom bar & mobile bar
     const palBar = document.getElementById('tg-pal-bar');
-    if (palBar) {
-      palBar.innerHTML = '';
-      RAW_PALETTES.forEach((p, i) => {
-        const btn = document.createElement('button');
-        btn.setAttribute('data-tg', 'sw');
-        btn.className = 'tg-sw';
-        btn.setAttribute('aria-label', p[0]);
-        btn.title = p[0];
-        btn.style.background = p[1];
-        btn.innerHTML = `<span data-tg="dot" style="background:${p[2]}"></span>`;
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.setState({ palette: i });
-          this.refocus();
+    const mobPalBar = document.getElementById('tg-mob-pal-bar');
+    [palBar, mobPalBar].forEach((container) => {
+      if (container) {
+        container.innerHTML = '';
+        RAW_PALETTES.forEach((p, i) => {
+          const btn = document.createElement('button');
+          btn.setAttribute('data-tg', 'sw');
+          btn.className = 'tg-sw';
+          btn.setAttribute('aria-label', p[0]);
+          btn.title = p[0];
+          btn.style.background = p[1];
+          btn.innerHTML = `<span data-tg="dot" style="background:${p[2]}"></span>`;
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.setState({ palette: i });
+            this.refocus();
+          });
+          container.appendChild(btn);
         });
-        palBar.appendChild(btn);
+      }
+    });
+
+    // Mobile input bar & stepped navigation
+    document.getElementById('tg-mob-input-box')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.inp.focus({ preventScroll: true });
+    });
+
+    document.getElementById('tg-mob-btn-clear')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.letters = [];
+      this.layout();
+      this.updateMobileInputDisplay();
+      this.refocus();
+    });
+
+    document.getElementById('tg-mob-btn-goto-poster')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const txt = this.liveText();
+      this.setState({
+        mode: 'poster',
+        text: txt.length > 0 ? txt : this.state.text
       });
-    }
+    });
+
+    // Mobile Poster Navigation Top Bar & Drawer
+    document.getElementById('tg-btn-mobile-back-type')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.setState({ mode: 'type' });
+      setTimeout(() => this.refocus(), 60);
+    });
+
+    document.getElementById('tg-btn-mobile-open-drawer')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('tg-panel')?.classList.toggle('open');
+    });
+
+    document.getElementById('tg-drawer-close')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.getElementById('tg-panel')?.classList.remove('open');
+    });
+
+    document.getElementById('tg-drawer-bar')?.addEventListener('click', (e) => {
+      if (e.target !== document.getElementById('tg-drawer-close')) {
+        document.getElementById('tg-panel')?.classList.toggle('open');
+      }
+    });
 
     // Type mode quick download buttons
     document.getElementById('tg-btn-png')?.addEventListener('click', () => {
@@ -421,15 +466,13 @@ export class TypeGardenApp {
         (ev.target as HTMLElement).closest &&
         ((ev.target as HTMLElement).closest('.tg-modal') ||
           (ev.target as HTMLElement).closest('[data-tg="bar"]') ||
+          (ev.target as HTMLElement).closest('[data-tg="mobile-bar"]') ||
           (ev.target as HTMLElement).closest('[data-tg="modes"]'))
       ) {
         return;
       }
-      const touch = ev.pointerType && ev.pointerType !== 'mouse';
+      this.inp.focus({ preventScroll: true });
       const onCanvas = ev.target === this.cv;
-      if (!touch) {
-        this.inp.focus({ preventScroll: true });
-      }
       if (onCanvas) {
         const now = performance.now();
         const lp = this.lastTap;
@@ -465,6 +508,12 @@ export class TypeGardenApp {
 
     this.resize();
     this.rebuildPosterData();
+    if (this.state.text && this.letters.length === 0) {
+      const now = performance.now();
+      for (const ch of this.state.text) {
+        this.addLetter(ch, now);
+      }
+    }
     this.updateUI();
 
     if (!this.touch) {
@@ -513,8 +562,17 @@ export class TypeGardenApp {
       barEl.style.display = isType ? 'flex' : 'none';
       barEl.style.color = curPal.C.text;
     }
+    const mobBarEl = document.getElementById('tg-mobile-bar');
+    if (mobBarEl) {
+      mobBarEl.style.display = isType ? 'flex' : 'none';
+    }
     const posterEl = document.getElementById('tg-poster');
     if (posterEl) posterEl.style.display = isType ? 'none' : 'grid';
+
+    if (!isType) {
+      document.getElementById('tg-panel')?.classList.remove('open');
+    }
+    this.updateMobileInputDisplay();
 
     const btnType = document.getElementById('tg-mode-type');
     const btnPoster = document.getElementById('tg-mode-poster');
@@ -725,8 +783,21 @@ export class TypeGardenApp {
   }
 
   private refocus(): void {
-    if (this.ptype === 'mouse' && this.state.mode === 'type' && this.inp) {
+    if (this.state.mode === 'type' && this.inp) {
       this.inp.focus({ preventScroll: true });
+    }
+  }
+
+  private updateMobileInputDisplay(): void {
+    const disp = document.getElementById('tg-mob-text-display');
+    if (!disp) return;
+    const txt = this.liveText();
+    if (txt.length > 0) {
+      disp.textContent = txt;
+      disp.classList.remove('tg-mob-text-empty');
+    } else {
+      disp.textContent = 'Sentuh untuk mengetik...';
+      disp.classList.add('tg-mob-text-empty');
     }
   }
 
@@ -764,6 +835,7 @@ export class TypeGardenApp {
       el.value = S;
       this.iv = S;
     }
+    this.updateMobileInputDisplay();
   }
 
   private handleKey(e: KeyboardEvent): void {
@@ -796,6 +868,7 @@ export class TypeGardenApp {
         pv.tb = now;
       }
       this.layout();
+      this.updateMobileInputDisplay();
       return;
     }
     if (e.key === 'Enter') {
@@ -803,6 +876,7 @@ export class TypeGardenApp {
       this.mark();
       this.letters = [];
       this.layout();
+      this.updateMobileInputDisplay();
       return;
     }
     if (e.key.length !== 1) return;
@@ -829,6 +903,7 @@ export class TypeGardenApp {
       }
       this.letters.push({ ch: ' ', id: this.uid++, birth: now, els: [], ws: 0, wi: 0, prev: null });
       this.layout();
+      this.updateMobileInputDisplay();
       return;
     }
     const same = last && last.ch !== ' ';
@@ -844,6 +919,7 @@ export class TypeGardenApp {
     genLetterBotanicals(l, (c) => this.measureWidth(c));
     this.letters.push(l);
     this.layout();
+    this.updateMobileInputDisplay();
   }
 
   private wither(now: number): void {
@@ -858,6 +934,7 @@ export class TypeGardenApp {
       pv.tb = now;
     }
     this.layout();
+    this.updateMobileInputDisplay();
   }
 
   public spawnFly(cx: number, cy: number): void {
