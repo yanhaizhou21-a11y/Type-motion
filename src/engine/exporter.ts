@@ -39,7 +39,7 @@ export function createZipArchive(files: { name: string; data: Uint8Array }[]): B
 }
 
 export async function exportCanvasVideo(
-  renderFrameAtTime: (timeMs: number) => void,
+  renderFrameAtTime: (timeMs: number, targetCanvas: HTMLCanvasElement) => void,
   width: number,
   height: number,
   durationMs: number,
@@ -70,7 +70,7 @@ export async function exportCanvasVideo(
     rec.onstop = () => resolve();
   });
 
-  renderFrameAtTime(0);
+  renderFrameAtTime(0, c);
   rec.start();
 
   const totalFrames = Math.max(1, Math.round((durationMs / 1000) * fps));
@@ -79,7 +79,7 @@ export async function exportCanvasVideo(
 
   for (let i = 0; i < totalFrames; i++) {
     const timeMs = (i * 1000) / fps;
-    renderFrameAtTime(timeMs);
+    renderFrameAtTime(timeMs, c);
     if (track && (track as unknown as { requestFrame?(): void }).requestFrame) {
       (track as unknown as { requestFrame(): void }).requestFrame();
     }
@@ -102,7 +102,7 @@ export async function exportCanvasVideo(
 }
 
 export async function exportCanvasFramesZip(
-  renderFrameAtTime: (timeMs: number) => void,
+  renderFrameAtTime: (timeMs: number, targetCanvas: HTMLCanvasElement) => void,
   width: number,
   height: number,
   durationMs: number,
@@ -118,7 +118,7 @@ export async function exportCanvasFramesZip(
 
   for (let i = 0; i < totalFrames; i++) {
     const timeMs = (i * 1000) / fps;
-    renderFrameAtTime(timeMs);
+    renderFrameAtTime(timeMs, c);
     const b = await new Promise<Blob | null>((resolve) => c.toBlob(resolve, 'image/png'));
     if (b) {
       const arr = new Uint8Array(await b.arrayBuffer());

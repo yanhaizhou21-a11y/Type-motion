@@ -117,7 +117,7 @@ export async function deleteAssetBlob(key: string): Promise<void> {
   await del(`tg_asset_${key}`);
 }
 
-// URL Hash State Compression via lz-string
+// Human-readable URL State Encoding with LZ-String legacy fallback
 export interface ShareableGardenState {
   text: string;
   palette: number;
@@ -130,26 +130,100 @@ export interface ShareableGardenState {
 
 export function encodeGardenStateToUrl(state: ShareableGardenState): string {
   try {
-    const json = JSON.stringify(state);
-    const compressed = LZString.compressToEncodedURIComponent(json);
-    return `#g=${compressed}`;
+    const params = new URLSearchParams();
+    if (state.text && state.text.trim()) {
+      params.set('t', state.text.trim());
+    }
+    if (typeof state.palette === 'number' && state.palette !== 0) {
+      params.set('pal', String(state.palette));
+    }
+    if (state.preset && state.preset !== 'breathe') {
+      params.set('pr', state.preset);
+    }
+    if (typeof state.seed === 'number' && state.seed !== 0) {
+      params.set('s', String(state.seed));
+    }
+    if (state.sizeId && state.sizeId !== 'ig-sq') {
+      params.set('sz', state.sizeId);
+    }
+    if (state.pw && state.ph && (state.pw !== 1080 || state.ph !== 1080)) {
+      params.set('w', String(state.pw));
+      params.set('h', String(state.ph));
+    }
+    const q = params.toString();
+    return q ? `?${q}` : '';
   } catch {
     return '';
   }
 }
 
-export function decodeGardenStateFromUrl(hashString?: string): ShareableGardenState | null {
+export function decodeGardenStateFromUrl(urlOrParamString?: string): ShareableGardenState | null {
   try {
-    const raw = hashString || window.location.hash;
-    if (!raw || !raw.startsWith('#g=')) return null;
-    const compressed = raw.slice(3);
-    const decompressed = LZString.decompressFromEncodedURIComponent(compressed);
-    if (!decompressed) return null;
-    const parsed = JSON.parse(decompressed);
-    if (parsed && typeof parsed === 'object') {
-      return parsed as ShareableGardenState;
+    let raw = urlOrParamString;
+    if (!raw && typeof window !== 'undefined') {
+      raw = (window.location.search || '') + (window.location.hash || '');
     }
-    return null;
+    if (!raw || !raw.trim()) return null;
+
+    // 1. Check for legacy compressed format (#g=... or g=...)
+    const gIndex = raw.indexOf('g=');
+    if (gIndex !== -1 && (gIndex === 0 || raw[gIndex - 1] === '#' || raw[gIndex - 1] === '?' || raw[gIndex - 1] === '&')) {
+      const remainder = raw.slice(gIndex + 2).split('&')[0].split('#')[0];
+      if (remainder) {
+        const decompressed = LZString.decompressFromEncodedURIComponent(remainder);
+        if (decompressed) {
+          const parsed = JSON.parse(decompressed);
+          if (parsed && typeof parsed === 'object') {
+            return parsed as ShareableGardenState;
+          }
+        }
+      }
+    }
+
+    // 2. Parse human-readable parameters (?t=... or #t=...)
+    let queryString = raw;
+    if (queryString.includes('?')) {
+      queryString = queryString.slice(queryString.indexOf('?') + 1);
+    } else if (queryString.includes('#')) {
+      queryString = queryString.slice(queryString.indexOf('#') + 1);
+    }
+
+    const sp = new URLSearchParams(queryString);
+    const text = sp.get('t') ?? sp.get('text');
+    const palStr = sp.get('pal') ?? sp.get('palette') ?? sp.get('p');
+    const preset = sp.get('pr') ?? sp.get('preset');
+    const seedStr = sp.get('s') ?? sp.get('seed');
+    const sizeId = sp.get('sz') ?? sp.get('sizeId') ?? sp.get('size');
+    const wStr = sp.get('w') ?? sp.get('pw');
+    const hStr = sp.get('h') ?? sp.get('ph');
+
+    // If no relevant parameters exist, return null
+    if (
+      text === null &&
+      palStr === null &&
+      preset === null &&
+      seedStr === null &&
+      sizeId === null &&
+      wStr === null &&
+      hStr === null
+    ) {
+      return null;
+    }
+
+    const palette = palStr !== null ? parseInt(palStr, 10) : 0;
+    const seed = seedStr !== null ? parseInt(seedStr, 10) : 0;
+    const pw = wStr !== null ? parseInt(wStr, 10) : 1080;
+    const ph = hStr !== null ? parseInt(hStr, 10) : 1080;
+
+    return {
+      text: text || '',
+      palette: isNaN(palette) ? 0 : palette,
+      seed: isNaN(seed) ? 0 : seed,
+      preset: preset || 'breathe',
+      sizeId: sizeId || 'ig-sq',
+      pw: isNaN(pw) ? 1080 : pw,
+      ph: isNaN(ph) ? 1080 : ph
+    };
   } catch {
     return null;
   }

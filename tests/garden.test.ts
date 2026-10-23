@@ -139,10 +139,14 @@ describe('URL State Compression (Zero DB Cost)', () => {
       ph: 1920
     };
 
-    const hash = encodeGardenStateToUrl(original);
-    expect(hash.startsWith('#g=')).toBe(true);
+    const urlQuery = encodeGardenStateToUrl(original);
+    expect(urlQuery.startsWith('?')).toBe(true);
+    expect(urlQuery).toContain('t=wildflower');
+    expect(urlQuery).toContain('pal=3');
+    expect(urlQuery).toContain('pr=wind');
+    expect(urlQuery).toContain('sz=story');
 
-    const restored = decodeGardenStateFromUrl(hash);
+    const restored = decodeGardenStateFromUrl(urlQuery);
     expect(restored).not.toBeNull();
     expect(restored?.text).toBe(original.text);
     expect(restored?.palette).toBe(original.palette);
@@ -151,6 +155,30 @@ describe('URL State Compression (Zero DB Cost)', () => {
     expect(restored?.sizeId).toBe(original.sizeId);
     expect(restored?.pw).toBe(original.pw);
     expect(restored?.ph).toBe(original.ph);
+  });
+
+  it('decodes legacy compressed #g= LZ-string URLs correctly', () => {
+    const legacyHash = '#g=N4Igtg9gJgpiBcIAOEDOAXGAnEAaZamWAatqgJYQB2Cy5AxnnfQMr1YCuARggAwB0ANgCs+JAwBiELGACG6WgHcYXJEwA2ECEgAiHHPACMvE73ybtEpKgSCzyLDFQwFiAG7kKCsbPUvMCACc+JgAHq4gsqhQirIxTM4wUAgA7PgUAF4wAJLJiOQA5gC0qACOTEiKCMYAHPZIABbVvHXp6PIcNohMXJ0AnggAZr7OAL5AA';
+    const decoded = decodeGardenStateFromUrl(legacyHash);
+    expect(decoded).not.toBeNull();
+    expect(decoded?.text).toBe('asdwadw');
+    expect(decoded?.palette).toBe(9);
+    expect(decoded?.preset).toBe('visit');
+    expect(decoded?.seed).toBe(7);
+
+    // Verify it re-encodes into the clean, human-readable format
+    const simplified = encodeGardenStateToUrl(decoded!);
+    expect(simplified).toBe('?t=asdwadw&pal=9&pr=visit&s=7');
+  });
+
+  it('decodes full URLs with query parameters correctly', () => {
+    const fullUrl = 'https://type-motion-mu.vercel.app/?t=in+bloom&pal=2&pr=reach&s=42';
+    const decoded = decodeGardenStateFromUrl(fullUrl);
+    expect(decoded).not.toBeNull();
+    expect(decoded?.text).toBe('in bloom');
+    expect(decoded?.palette).toBe(2);
+    expect(decoded?.preset).toBe('reach');
+    expect(decoded?.seed).toBe(42);
   });
 
   it('gracefully handles empty or invalid hash', () => {

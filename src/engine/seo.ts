@@ -55,28 +55,11 @@ export function computeSeoMetadata(
   let presId = presetId;
 
   if (typeof window !== 'undefined') {
-    // 1. Check URL hash state (#g=...)
-    const hashState: ShareableGardenState | null = decodeGardenStateFromUrl(window.location.hash);
-    if (hashState) {
-      if (text === undefined && hashState.text) text = hashState.text.trim();
-      if (palIdx === undefined && typeof hashState.palette === 'number') palIdx = hashState.palette;
-      if (presId === undefined && hashState.preset) presId = hashState.preset;
-    }
-
-    // 2. Check query params fallback (?text=...&palette=...&preset=...)
-    try {
-      const sp = new URLSearchParams(window.location.search);
-      const qText = sp.get('text') || sp.get('t');
-      const qPal = sp.get('palette') || sp.get('pal');
-      const qPreset = sp.get('preset') || sp.get('p');
-      if (text === undefined && qText) text = qText.trim();
-      if (palIdx === undefined && qPal) {
-        const parsed = parseInt(qPal, 10);
-        if (!isNaN(parsed)) palIdx = parsed;
-      }
-      if (presId === undefined && qPreset) presId = qPreset;
-    } catch {
-      // In non-browser or sandbox environments
+    const urlState: ShareableGardenState | null = decodeGardenStateFromUrl();
+    if (urlState) {
+      if (text === undefined && urlState.text) text = urlState.text.trim();
+      if (palIdx === undefined && typeof urlState.palette === 'number') palIdx = urlState.palette;
+      if (presId === undefined && urlState.preset) presId = urlState.preset;
     }
   }
 

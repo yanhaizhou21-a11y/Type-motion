@@ -211,16 +211,21 @@ export class TypeGardenApp {
 
   private saveState(): void {
     saveSettingsToLocal(this.state, this.sprites, this.tex);
-    const hash = encodeGardenStateToUrl(this.state);
-    if (hash && window.location.hash !== hash) {
-      window.history.replaceState(null, '', hash);
+    const query = encodeGardenStateToUrl(this.state);
+    if (typeof window !== 'undefined' && window.location) {
+      const current = window.location.search || window.location.hash;
+      if (query && current !== query) {
+        window.history.replaceState(null, '', `${window.location.pathname}${query}`);
+      } else if (!query && (window.location.search || window.location.hash)) {
+        window.history.replaceState(null, '', window.location.pathname);
+      }
     }
     updateDynamicSeo(this.state.text, this.state.palette, this.state.preset);
   }
 
   private async shareGardenUrl(): Promise<void> {
-    const hash = encodeGardenStateToUrl(this.state);
-    const url = `${window.location.origin}${window.location.pathname}${hash}`;
+    const query = encodeGardenStateToUrl(this.state);
+    const url = `${window.location.origin}${window.location.pathname}${query}`;
     const clean = (this.state.text || '').trim();
     const title = clean.length > 0 ? `Type Garden: "${clean}"` : 'Type Garden Studio';
     const text = clean.length > 0
@@ -1172,6 +1177,7 @@ export class TypeGardenApp {
 
   public saveTypePng(): void {
     this.paintType(performance.now());
+    if (!this.cv || !this.cv.width || !this.cv.height) return;
     this.cv.toBlob((b) => {
       if (b) triggerDownload(b, 'garden.png');
     });
@@ -1210,11 +1216,26 @@ export class TypeGardenApp {
     this.setState({ busy: true, status: 'Recording…' });
 
     try {
-      const renderFrame = (t: number) => {
-        const g = this.pcv.getContext('2d')!;
+      const renderFrame = (t: number, targetCanvas?: HTMLCanvasElement) => {
+        const dest = targetCanvas || this.pcv;
+        if (!dest) return;
+        if (dest.width !== P.W || dest.height !== P.H) {
+          dest.width = P.W;
+          dest.height = P.H;
+        }
+        const g = dest.getContext('2d')!;
+        g.setTransform(1, 0, 0, 1, 0, 0);
         const B = createCanvasBackend(g, this.sprites);
         drawPosterScene(B, t, P, this.pal(), this.sprites, false);
         this.compositor.applyTextureOverlay(g, P.W, P.H, t, this.tex, false);
+
+        if (targetCanvas && this.pcv && targetCanvas !== this.pcv) {
+          const pg = this.pcv.getContext('2d');
+          if (pg) {
+            pg.setTransform(1, 0, 0, 1, 0, 0);
+            pg.drawImage(targetCanvas, 0, 0, this.pcv.width, this.pcv.height);
+          }
+        }
       };
 
       const res = await exportCanvasVideo(
@@ -1241,11 +1262,26 @@ export class TypeGardenApp {
     this.setState({ busy: true, status: 'Rendering frames…' });
 
     try {
-      const renderFrame = (t: number) => {
-        const g = this.pcv.getContext('2d')!;
+      const renderFrame = (t: number, targetCanvas?: HTMLCanvasElement) => {
+        const dest = targetCanvas || this.pcv;
+        if (!dest) return;
+        if (dest.width !== P.W || dest.height !== P.H) {
+          dest.width = P.W;
+          dest.height = P.H;
+        }
+        const g = dest.getContext('2d')!;
+        g.setTransform(1, 0, 0, 1, 0, 0);
         const B = createCanvasBackend(g, this.sprites);
         drawPosterScene(B, t, P, this.pal(), this.sprites, false);
         this.compositor.applyTextureOverlay(g, P.W, P.H, t, this.tex, false);
+
+        if (targetCanvas && this.pcv && targetCanvas !== this.pcv) {
+          const pg = this.pcv.getContext('2d');
+          if (pg) {
+            pg.setTransform(1, 0, 0, 1, 0, 0);
+            pg.drawImage(targetCanvas, 0, 0, this.pcv.width, this.pcv.height);
+          }
+        }
       };
 
       const zipBlob = await exportCanvasFramesZip(
@@ -1265,7 +1301,7 @@ export class TypeGardenApp {
   }
 
   public exportSnapshotPng(): void {
-    if (!this.pcv) return;
+    if (!this.pcv || !this.pcv.width || !this.pcv.height) return;
     this.pcv.toBlob((b) => {
       if (b) {
         triggerDownload(b, `poster-${this.state.pw}x${this.state.ph}.png`);
@@ -1275,19 +1311,32 @@ export class TypeGardenApp {
   }
 
   public exportStillPic(fmt: 'png' | 'jpeg' | 'webp'): void {
-    if (!this.pcv || !this.posterData) return;
+    if (!this.posterData) return;
     const P = this.posterData;
     const t = (this.state.picScrub ?? 0.65) * P.T;
 
-    const g = this.pcv.getContext('2d')!;
+    const c = document.createElement('canvas');
+    c.width = P.W;
+    c.height = P.H;
+    const g = c.getContext('2d')!;
+    g.setTransform(1, 0, 0, 1, 0, 0);
     const B = createCanvasBackend(g, this.sprites);
     drawPosterScene(B, t, P, this.pal(), this.sprites, true);
     this.compositor.applyTextureOverlay(g, P.W, P.H, t, this.tex, true);
 
+    if (this.pcv) {
+      if (this.pcv.width !== P.W || this.pcv.height !== P.H) {
+        this.pcv.width = P.W;
+        this.pcv.height = P.H;
+      }
+      const pg = this.pcv.getContext('2d');
+      pg?.drawImage(c, 0, 0);
+    }
+
     const mime = fmt === 'jpeg' ? 'image/jpeg' : fmt === 'webp' ? 'image/webp' : 'image/png';
     const ext = fmt === 'jpeg' ? 'jpg' : fmt;
 
-    this.pcv.toBlob((b) => {
+    c.toBlob((b) => {
       if (b) {
         triggerDownload(b, `garden-${P.W}x${P.H}.${ext}`);
         this.setState({ status: `Saved Still Pic (.${ext})` });

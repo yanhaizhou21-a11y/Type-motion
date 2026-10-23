@@ -34,11 +34,11 @@ Traditional generative poster apps incur steep monthly cloud bills for asset sto
 | Component | Traditional Approach (High Cost) | Type Garden Studio ($0 Cost) |
 |---|---|---|
 | **User Sprites** | Uploaded to AWS S3 / Cloud Storage | Persisted locally in `IndexedDB` via `idb-keyval` as alpha `Blob`s |
-| **Garden State & Sharing** | Stored in PostgreSQL / MongoDB | Compressed into URL hash `#g=...` via `lz-string` (zero database reads/writes) |
+| **Garden State & Sharing** | Stored in PostgreSQL / MongoDB | Clean readable query params `?t=...&pal=...` with legacy `#g=...` fallback |
 | **Settings & Preferences** | User table in cloud database | Browser `localStorage` (palette, preset, dimensions, seed) |
 | **Background Removal** | Cloud API (e.g. remove.bg at $0.20/image) | In-browser `OffscreenCanvas` chroma-key and corner luminance flood-fill |
-| **MP4 / WebM Video Export** | Server-side FFmpeg queue | Client-side `MediaRecorder` at 16Mbps stream capture |
-| **PNG Frames ZIP Export** | Server ZIP compression worker | Pure TypeScript in-browser PKZIP archiver with IEEE 802.3 CRC32 checksums |
+| **MP4 / WebM Video Export** | Server-side FFmpeg queue | Direct-canvas `MediaRecorder` at 16Mbps stream capture with live progress mirror |
+| **PNG Frames ZIP Export** | Server ZIP compression worker | Pure TypeScript PKZIP archiver with direct-canvas frame rendering & IEEE 802.3 CRC32 |
 | **Multi-Gardener Sync** | Dedicated WebSocket cluster | Zero-cost `BroadcastChannel` (cross-tab) and ephemeral P2P channels |
 | **Hosting & CDN** | Dynamic Node.js server | 100% static asset bundle (~30KB gzipped) on Cloudflare Pages / Vercel |
 
@@ -84,11 +84,14 @@ Comprehensive aspect ratios and resolutions with instant live preview:
 - **Dual Export Modes:**
   - **Video Loop Mode:** MediaRecorder 16Mbps stream capture (MP4/WebM) and pure TypeScript IEEE 802.3 CRC32 PKZIP PNG frame sequence.
   - **Still Pic Mode:** Bloom timeline scrubber (0% bud to 100% full bloom) with instant 1x/2x/3x PNG and vector SVG export.
+  - **Direct Canvas Frame Rendering:** Frames are rendered directly to the capture canvas with real-time UI mirroring, eliminating blank or transparent export outputs.
 
-### 6. Dynamic SEO & Social Link Previews (`src/engine/seo.ts`)
-- **Adaptive URL Metadata:** Automatically detects URL hash state (`#g=...`) and query parameters (`?text=...`) to personalize `<title>`, Open Graph tags (`og:title`, `og:description`), Twitter Card metadata, and canonical links based on the specific words and palette created by the gardener.
-- **Social Sharing:** In-app Share buttons with Web Share API integration on mobile devices and automatic clipboard copy fallback.
-- **High-Resolution Open Graph Image:** Bundles `public/og.png` (1200 x 630) and `public/favicon.svg` for rich preview cards across WhatsApp, Telegram, Discord, X/Twitter, Facebook, and LinkedIn.
+### 6. Human-Readable Share URLs & Metadata Cards (`src/storage/localStore.ts`, `src/engine/seo.ts`)
+- **Simplified Readable Share URLs:** Garden text, palette, motion preset, and dimensions serialize into clean query parameters (e.g. `?t=asdwadw&pal=9&pr=visit&s=7`) instead of unreadable base64/LZ blocks.
+- **Dual-Mode Backward Compatibility:** Full backward compatibility with existing `#g=...` compressed links. The decoder parses both readable query parameters and legacy compressed hashes.
+- **Adaptive URL Metadata & Card Previews:** Automatically reads URL parameters on load to personalize `<title>`, Open Graph tags (`og:title`, `og:description`), Twitter/X Cards, and canonical links.
+- **Social Sharing:** In-app Share buttons with Web Share API on mobile devices and clipboard copy fallback.
+- **High-Resolution Card Assets:** Bundles `public/og.jpg` and `public/og.png` (1200 x 630) for rich, verified link preview cards across WhatsApp, Telegram, Discord, X/Twitter, Facebook, and LinkedIn.
 - **Structured Data:** Embeds Schema.org `WebApplication` JSON-LD metadata for Google search indexing.
 
 ---
