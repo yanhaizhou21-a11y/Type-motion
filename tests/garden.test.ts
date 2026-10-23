@@ -387,5 +387,48 @@ describe('SEO & Dynamic URL Metadata Engine', () => {
     expect(meta.description).not.toContain('\n');
     expect(meta.description).not.toContain('\t');
   });
+
+  it('guarantees zero em dashes in generated titles and metadata descriptions', () => {
+    const meta = computeSeoMetadata('GARDEN', 2, 'drift');
+    expect(meta.title).not.toContain('—');
+    expect(meta.description).not.toContain('—');
+    expect(meta.ogTitle).not.toContain('—');
+    expect(meta.ogDescription).not.toContain('—');
+  });
+});
+
+describe('Mobile Stepped Flow & Text Sync', () => {
+  it('correctly handles mobile incremental typing diff and wither', () => {
+    let currentLetters: string[] = [];
+    const simulateMobileInput = (oldVal: string, newVal: string) => {
+      let p = 0;
+      while (p < oldVal.length && p < newVal.length && oldVal[p] === newVal[p]) p++;
+      const dels = oldVal.length - p;
+      const adds = newVal.slice(p);
+      for (let i = 0; i < dels; i++) currentLetters.pop();
+      for (const ch of adds) {
+        if (ch === '\n') currentLetters = [];
+        else currentLetters.push(ch);
+      }
+    };
+
+    // User types 'BLOOM'
+    simulateMobileInput('', 'B');
+    simulateMobileInput('B', 'BL');
+    simulateMobileInput('BL', 'BLOOM');
+    expect(currentLetters.join('')).toBe('BLOOM');
+
+    // User hits backspace twice
+    simulateMobileInput('BLOOM', 'BLO');
+    expect(currentLetters.join('')).toBe('BLO');
+
+    // User appes 'SSOM'
+    simulateMobileInput('BLO', 'BLOSSOM');
+    expect(currentLetters.join('')).toBe('BLOSSOM');
+
+    // User clears
+    simulateMobileInput('BLOSSOM', '');
+    expect(currentLetters.length).toBe(0);
+  });
 });
 

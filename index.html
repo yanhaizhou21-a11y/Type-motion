@@ -198,21 +198,249 @@
       background: rgba(255,255,255,0.1);
     }
 
+    /* Mobile-only components are strictly hidden on desktop */
+    .tg-mobile-only {
+      display: none !important;
+    }
+
     [data-tg="coarse"] { display: none; }
     @media (pointer: coarse) {
       [data-tg="fine"] { display: none; }
       [data-tg="coarse"] { display: inline; }
     }
+
     @media (max-width: 680px) {
-      [data-tg="bar"] {
-        left: calc(12px + env(safe-area-inset-left)) !important;
-        right: calc(12px + env(safe-area-inset-right)) !important;
-        bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-        gap: 8px !important;
+      /* Mobile Type mode: hide desktop bar and show floating mobile dock */
+      body[data-tg-mode="type"] [data-tg="bar"] {
+        display: none !important;
       }
-      [data-tg="hints"] { display: none; }
-      [data-tg="ctrls"] { width: 100%; justify-content: space-between; border-radius: 16px; padding: 8px; }
-      [data-tg="pal"] { border-right: 0; width: 100%; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+      body[data-tg-mode="type"] .tg-mobile-dock {
+        display: flex !important;
+        flex-direction: column;
+        gap: 8px;
+        position: fixed;
+        left: calc(12px + env(safe-area-inset-left, 0px));
+        right: calc(12px + env(safe-area-inset-right, 0px));
+        bottom: calc(12px + var(--tg-kb-offset, 0px) + env(safe-area-inset-bottom, 0px));
+        z-index: 10;
+        pointer-events: auto;
+      }
+      .tg-mob-row-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+      }
+      .tg-mob-pal {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        overflow-x: auto;
+        padding: 4px 8px;
+        background: rgba(14, 14, 14, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        scrollbar-width: none;
+      }
+      .tg-mob-pal::-webkit-scrollbar { display: none; }
+      .tg-mob-row-main {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .tg-mob-input-box {
+        flex: 1;
+        min-height: 48px;
+        background: rgba(14, 14, 14, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 24px;
+        padding: 0 16px;
+        display: flex;
+        align-items: center;
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      }
+      .tg-mob-input-box:focus-within {
+        border-color: #FFFFFF;
+        box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.25), 0 8px 24px rgba(0, 0, 0, 0.5);
+      }
+      #tg-mob-input {
+        width: 100%;
+        background: transparent;
+        border: 0;
+        outline: none;
+        font-family: 'DM Mono', monospace;
+        font-size: 15px;
+        color: #FFFFFF;
+        padding: 0;
+        margin: 0;
+      }
+      #tg-mob-input::placeholder {
+        color: rgba(255, 255, 255, 0.45);
+      }
+      .tg-mob-pill-btn {
+        min-height: 40px;
+        min-width: 44px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(20, 20, 20, 0.88);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        color: #EEEEEE;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        touch-action: manipulation;
+      }
+      .tg-mob-pill-btn:active {
+        background: rgba(45, 45, 45, 0.95);
+        border-color: #FFFFFF;
+      }
+      .tg-mob-cta-btn {
+        min-height: 48px;
+        min-width: 48px;
+        padding: 0 18px;
+        border-radius: 24px;
+        background: #FFFFFF;
+        color: #000000;
+        border: 0;
+        font-family: 'DM Mono', monospace;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: pointer;
+        white-space: nowrap;
+        touch-action: manipulation;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+      }
+      .tg-mob-cta-btn:active {
+        transform: scale(0.97);
+        background: #E5E5E5;
+      }
+
+      /* Mobile Poster mode */
+      body[data-tg-mode="poster"] [data-tg="modes"] {
+        display: none !important;
+      }
+      body[data-tg-mode="poster"] [data-tg="poster"] {
+        display: flex !important;
+        flex-direction: column !important;
+        position: fixed !important;
+        inset: 0 !important;
+        z-index: 20;
+        background: #050505;
+      }
+      body[data-tg-mode="poster"] .tg-mobile-poster-nav {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: center;
+        padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px;
+        background: rgba(10, 10, 10, 0.92);
+        border-bottom: 1px solid #1C1C1C;
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 25;
+        gap: 8px;
+      }
+      .tg-mob-poster-tabs {
+        display: flex;
+        background: #161616;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 999px;
+        padding: 2px;
+      }
+      .tg-mob-tab-btn {
+        background: transparent;
+        border: 0;
+        color: #888888;
+        font-family: 'DM Mono', monospace;
+        font-size: 11.5px;
+        font-weight: 500;
+        padding: 6px 12px;
+        border-radius: 999px;
+        cursor: pointer;
+        touch-action: manipulation;
+        transition: background 0.15s, color 0.15s;
+      }
+      .tg-mob-tab-btn.active {
+        background: #FFFFFF;
+        color: #000000;
+        font-weight: 600;
+      }
+
+      /* Preview view on mobile poster */
+      body[data-tg-mode="poster"]:not([data-mob-view="edit"]) [data-tg="stage"] {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        height: auto !important;
+        max-height: none !important;
+        padding: 16px 16px calc(68px + env(safe-area-inset-bottom, 0px)) !important;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      body[data-tg-mode="poster"]:not([data-mob-view="edit"]) [data-tg="pcanvas"] {
+        max-height: calc(100vh - 180px) !important;
+        max-width: 100% !important;
+        width: auto !important;
+        height: auto !important;
+      }
+      body[data-tg-mode="poster"]:not([data-mob-view="edit"]) [data-tg="panel"] {
+        display: none !important;
+      }
+      body[data-tg-mode="poster"]:not([data-mob-view="edit"]) .tg-mob-stage-actions {
+        display: flex !important;
+        gap: 10px;
+        position: absolute;
+        bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 10;
+      }
+      .tg-mob-stage-btn {
+        min-height: 40px;
+        padding: 0 16px;
+        border-radius: 999px;
+        background: rgba(18, 18, 18, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        color: #FFFFFF;
+        font-family: 'DM Mono', monospace;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        cursor: pointer;
+        touch-action: manipulation;
+      }
+      .tg-mob-stage-btn:active {
+        background: #2A2A2A;
+      }
+
+      /* Edit view on mobile poster */
+      body[data-tg-mode="poster"][data-mob-view="edit"] [data-tg="stage"] {
+        display: none !important;
+      }
+      body[data-tg-mode="poster"][data-mob-view="edit"] [data-tg="panel"] {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        height: auto !important;
+        border-right: 0 !important;
+        border-top: 0 !important;
+      }
     }
 
     [data-tg="poster"] {
@@ -341,7 +569,7 @@
       box-shadow: 0 24px 64px rgba(0,0,0,0.85);
       object-fit: contain;
     }
-    @media (max-width: 820px) {
+    @media (min-width: 681px) and (max-width: 820px) {
       [data-tg="poster"] {
         display: flex !important;
         flex-direction: column;
@@ -634,7 +862,52 @@
       </div>
     </div>
 
+    <!-- Mobile Type Mode Floating Dock (Phone only) -->
+    <div class="tg-mobile-dock tg-mobile-only" id="tg-mobile-dock">
+      <div class="tg-mob-row-top">
+        <div id="tg-mob-pal-bar" class="tg-mob-pal"></div>
+        <button id="tg-mob-btn-clear" class="tg-mob-pill-btn" type="button" title="Bersihkan teks">Hapus</button>
+      </div>
+      <div class="tg-mob-row-main">
+        <div class="tg-mob-input-box">
+          <input
+            id="tg-mob-input"
+            type="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="Sentuh untuk mengetik..."
+            aria-label="Ketik teks untuk menumbuhkan bunga"
+          >
+        </div>
+        <button id="tg-mob-btn-goto-poster" class="tg-mob-cta-btn" type="button">
+          <span>Poster</span>
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M6 3L11 8L6 13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
     <div data-tg="poster" id="tg-poster" style="display:none;">
+      <!-- Mobile Poster Navigation Bar (Phone only) -->
+      <div class="tg-mobile-poster-nav tg-mobile-only" id="tg-mobile-poster-nav">
+        <button id="tg-mob-back-type" class="tg-mob-pill-btn" type="button">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M10 13L5 8L10 3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>Ketik Teks</span>
+        </button>
+        <div class="tg-mob-poster-tabs">
+          <button id="tg-mob-view-preview" class="tg-mob-tab-btn active" type="button">Poster</button>
+          <button id="tg-mob-view-edit" class="tg-mob-tab-btn" type="button">Atur Desain</button>
+        </div>
+        <button id="tg-mob-poster-share" class="tg-mob-pill-btn" type="button" style="border-color:rgba(127,209,139,0.45);color:#7FD18B;">
+          <span>Share</span>
+        </button>
+      </div>
+
       <div data-tg="panel" id="tg-panel">
         <div class="tg-panel-header">
           <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -776,6 +1049,11 @@
       <div data-tg="stage" id="tg-stage">
         <canvas id="tg-pcv" data-tg="pcanvas" width="1080" height="1080"></canvas>
         <div class="tg-stage-pill" id="tg-stage-meta">1080 × 1080 · Breathe · Rose noir</div>
+        <!-- Mobile Poster Quick Actions (Phone only, in preview view) -->
+        <div class="tg-mob-stage-actions tg-mobile-only" id="tg-mob-stage-actions">
+          <button id="tg-mob-stage-png" class="tg-mob-stage-btn" type="button">Unduh PNG</button>
+          <button id="tg-mob-stage-share" class="tg-mob-stage-btn" type="button" style="border-color:rgba(127,209,139,0.45);color:#7FD18B;">Share Link</button>
+        </div>
       </div>
     </div>
 

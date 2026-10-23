@@ -127,7 +127,6 @@ export class TypeGardenApp {
   private composing = false;
   private _kd = false;
   private touch = false;
-  private ptype = 'mouse';
   private iv = '\u200b';
 
   private flies: Butterfly[] = [];
@@ -335,9 +334,6 @@ export class TypeGardenApp {
       this.mx = e.clientX;
       this.my = e.clientY;
     });
-    window.addEventListener('pointerdown', (e) => {
-      this.ptype = e.pointerType || 'mouse';
-    }, true);
     window.addEventListener('pointerup', (e) => {
       if (e.pointerType && e.pointerType !== 'mouse') this.mx = null;
     });
@@ -375,24 +371,114 @@ export class TypeGardenApp {
       }
     });
 
-    // Color Swatches in bottom bar
+    // Color Swatches in bottom bar & mobile dock
     const palBar = document.getElementById('tg-pal-bar');
-    if (palBar) {
-      palBar.innerHTML = '';
-      RAW_PALETTES.forEach((p, i) => {
-        const btn = document.createElement('button');
-        btn.setAttribute('data-tg', 'sw');
-        btn.className = 'tg-sw';
-        btn.setAttribute('aria-label', p[0]);
-        btn.title = p[0];
-        btn.style.background = p[1];
-        btn.innerHTML = `<span data-tg="dot" style="background:${p[2]}"></span>`;
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.setState({ palette: i });
-          this.refocus();
+    const mobPalBar = document.getElementById('tg-mob-pal-bar');
+    [palBar, mobPalBar].forEach((container) => {
+      if (container) {
+        container.innerHTML = '';
+        RAW_PALETTES.forEach((p, i) => {
+          const btn = document.createElement('button');
+          btn.setAttribute('data-tg', 'sw');
+          btn.className = 'tg-sw';
+          btn.setAttribute('aria-label', p[0]);
+          btn.title = p[0];
+          btn.style.background = p[1];
+          btn.innerHTML = `<span data-tg="dot" style="background:${p[2]}"></span>`;
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.setState({ palette: i });
+            this.refocus();
+          });
+          container.appendChild(btn);
         });
-        palBar.appendChild(btn);
+      }
+    });
+
+    // Mobile input & stepped poster flow
+    let prevMobVal = '';
+    const mobInput = document.getElementById('tg-mob-input') as HTMLInputElement | null;
+    mobInput?.addEventListener('input', () => {
+      const cur = mobInput.value;
+      let p = 0;
+      while (p < prevMobVal.length && p < cur.length && prevMobVal[p] === cur[p]) p++;
+      const dels = prevMobVal.length - p;
+      const adds = cur.slice(p);
+      const now = performance.now();
+      this.lastKey = now;
+      for (let i = 0; i < dels; i++) this.wither(now);
+      for (const ch of adds) {
+        if (ch === '\n') {
+          this.letters = [];
+          this.layout();
+        } else {
+          this.addLetter(ch, now);
+        }
+      }
+      prevMobVal = cur;
+    });
+
+    document.getElementById('tg-mob-btn-clear')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (mobInput) mobInput.value = '';
+      prevMobVal = '';
+      this.letters = [];
+      this.layout();
+      this.refocus();
+    });
+
+    document.getElementById('tg-mob-btn-goto-poster')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const txt = mobInput?.value.trim() || this.liveText();
+      this.setState({
+        mode: 'poster',
+        text: txt || this.state.text
+      });
+      document.body.setAttribute('data-mob-view', 'preview');
+    });
+
+    document.getElementById('tg-mob-back-type')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.setState({ mode: 'type' });
+      this.refocus();
+    });
+
+    const mobViewPrev = document.getElementById('tg-mob-view-preview');
+    const mobViewEdit = document.getElementById('tg-mob-view-edit');
+    mobViewPrev?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.body.setAttribute('data-mob-view', 'preview');
+      mobViewPrev.classList.add('active');
+      mobViewEdit?.classList.remove('active');
+      this.rebuildPosterData();
+    });
+    mobViewEdit?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.body.setAttribute('data-mob-view', 'edit');
+      mobViewEdit.classList.add('active');
+      mobViewPrev?.classList.remove('active');
+    });
+
+    document.getElementById('tg-mob-stage-png')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.exportSnapshotPng();
+    });
+    document.getElementById('tg-mob-stage-share')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.shareGardenUrl();
+    });
+    document.getElementById('tg-mob-poster-share')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.shareGardenUrl();
+    });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => {
+        const vv = window.visualViewport;
+        if (vv) {
+          const offset = window.innerHeight - (vv.height + vv.offsetTop);
+          document.documentElement.style.setProperty('--tg-kb-offset', `${Math.max(0, offset)}px`);
+        }
       });
     }
 
@@ -421,13 +507,15 @@ export class TypeGardenApp {
         (ev.target as HTMLElement).closest &&
         ((ev.target as HTMLElement).closest('.tg-modal') ||
           (ev.target as HTMLElement).closest('[data-tg="bar"]') ||
+          (ev.target as HTMLElement).closest('.tg-mobile-dock') ||
           (ev.target as HTMLElement).closest('[data-tg="modes"]'))
       ) {
         return;
       }
-      const touch = ev.pointerType && ev.pointerType !== 'mouse';
       const onCanvas = ev.target === this.cv;
-      if (!touch) {
+      if (window.innerWidth <= 680) {
+        mobInput?.focus();
+      } else {
         this.inp.focus({ preventScroll: true });
       }
       if (onCanvas) {
@@ -465,6 +553,14 @@ export class TypeGardenApp {
 
     this.resize();
     this.rebuildPosterData();
+    document.body.setAttribute('data-tg-mode', this.state.mode);
+    document.body.setAttribute('data-mob-view', 'preview');
+    if (this.state.text && this.letters.length === 0) {
+      const now = performance.now();
+      for (const ch of this.state.text) {
+        this.addLetter(ch, now);
+      }
+    }
     this.updateUI();
 
     if (!this.touch) {
@@ -505,6 +601,18 @@ export class TypeGardenApp {
     document.documentElement.style.setProperty('--tg-stem', curPal.C.blue);
     document.documentElement.style.setProperty('--tg-detail', curPal.C.line);
 
+    document.body.setAttribute('data-tg-mode', s.mode);
+    if (isType) {
+      const mobInp = document.getElementById('tg-mob-input') as HTMLInputElement | null;
+      if (mobInp && mobInp !== document.activeElement) {
+        const live = this.liveText();
+        if (live.length > 0) {
+          mobInp.value = live;
+        } else if (this.state.text && this.letters.length === 0) {
+          mobInp.value = this.state.text;
+        }
+      }
+    }
     this.cv.style.display = isType ? 'block' : 'none';
     const peersEl = document.getElementById('tg-peers');
     if (peersEl) peersEl.style.display = isType ? 'block' : 'none';
@@ -725,8 +833,12 @@ export class TypeGardenApp {
   }
 
   private refocus(): void {
-    if (this.ptype === 'mouse' && this.state.mode === 'type' && this.inp) {
-      this.inp.focus({ preventScroll: true });
+    if (this.state.mode === 'type') {
+      if (window.innerWidth <= 680) {
+        (document.getElementById('tg-mob-input') as HTMLInputElement | null)?.focus();
+      } else if (this.inp) {
+        this.inp.focus({ preventScroll: true });
+      }
     }
   }
 
