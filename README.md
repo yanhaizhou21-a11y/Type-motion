@@ -1,35 +1,18 @@
 # Type Garden Studio
 
-Type Garden Studio is a production-ready, zero-cost modular web application built with Vite 6 and TypeScript 5 (Strict Mode). It scales to 12,000+ concurrent or monthly users with $0 storage and $0 database costs.
-
-Type words to grow procedural vector botanical vines, blooming roses, and foliage in real time, or design social media and device posters with custom flower, leaf, and stalk sprites.
+Type Garden Studio is a production-ready, zero-cost modular web application built with Vite 6 and TypeScript 5 (Strict Mode). Type words to grow procedural vector botanical vines, blooming roses, and foliage in real time, or design social media and device posters with custom flower, leaf, and stalk sprites. The architecture scales to 12,000+ concurrent or monthly users with $0 storage and $0 database costs.
 
 ## Table of Contents
 
-- [Architecture](#zero-cost-architecture-12000-users-at-0mo)
 - [Features](#features)
+- [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
 - [Deployment](#deployment)
+- [Project Structure](#project-structure)
 - [Design & Accessibility](#design--accessibility)
-- [Reference & Credits](#reference--credits)
+- [Credits & References](#credits--references)
 - [License](#license)
-
-## Zero-Cost Architecture (12,000+ Users at $0/mo)
-
-Traditional generative poster applications incur cloud costs for asset storage (AWS S3), relational databases (PostgreSQL), and background video rendering servers. Type Garden Studio eliminates these costs through a client-first architecture:
-
-| Component | Traditional Approach | Type Garden Studio ($0 Cost) |
-| --- | --- | --- |
-| **User Sprites** | AWS S3 / Cloud Storage | Persisted locally in `IndexedDB` via `idb-keyval` as alpha `Blob`s |
-| **Garden State & Sharing** | PostgreSQL / MongoDB | Clean query params (`?t=...&pal=...`) with legacy `#g=...` fallback |
-| **Settings & Preferences** | Cloud database | Browser `localStorage` (palette, preset, dimensions, seed) |
-| **Background Removal** | Cloud API (e.g., remove.bg at $0.20/image) | In-browser `OffscreenCanvas` chroma-key and corner luminance flood-fill |
-| **MP4 / WebM Video Export** | Server-side FFmpeg queue | Direct-canvas `MediaRecorder` at 16Mbps stream capture with live progress mirror |
-| **PNG Frames ZIP Export** | Server ZIP compression worker | Pure TypeScript PKZIP archiver with direct-canvas frame rendering & IEEE 802.3 CRC32 |
-| **Multi-Gardener Sync** | Dedicated WebSocket cluster | Zero-cost `BroadcastChannel` (cross-tab) and ephemeral P2P channels |
-| **Hosting & CDN** | Dynamic Node.js server | 100% static asset bundle (~30KB gzipped) on Cloudflare Pages or Vercel |
 
 ## Features
 
@@ -43,7 +26,7 @@ Traditional generative poster applications incur cloud costs for asset storage (
 - **Client-Side Storage:** Stores sprites directly in `IndexedDB` under keys `sprite_flower`, `sprite_leaf`, and `sprite_stalk` without remote server uploads.
 
 ### Social Media & Device Poster Engine (`src/constants.ts`, `src/engine/poster.ts`)
-Comprehensive aspect ratios and resolutions with instant live preview:
+Aspect ratios and resolutions with live preview support:
 - **IG Square:** 1080 x 1080 (1:1)
 - **IG Portrait:** 1080 x 1350 (4:5)
 - **Story / Reel / TikTok:** 1080 x 1920 (9:16)
@@ -72,7 +55,7 @@ Comprehensive aspect ratios and resolutions with instant live preview:
 - **Dual Export Modes:**
   - **Video Loop Mode:** MediaRecorder 16Mbps stream capture (MP4/WebM) and pure TypeScript IEEE 802.3 CRC32 PKZIP PNG frame sequence.
   - **Still Pic Mode:** Bloom timeline scrubber (0% bud to 100% full bloom) with instant 1x, 2x, and 3x PNG and vector SVG export.
-  - **Direct Canvas Frame Rendering:** Frames render directly to the capture canvas with real-time UI mirroring, eliminating blank or transparent export outputs.
+- **Direct Canvas Frame Rendering:** Frames render directly to the capture canvas with real-time UI mirroring, eliminating blank or transparent export outputs.
 
 ### Human-Readable Share URLs & Metadata Cards (`src/storage/localStore.ts`, `src/engine/seo.ts`)
 - **Readable Share URLs:** Garden text, palette, motion preset, and dimensions serialize into clean query parameters (e.g., `?t=asdwadw&pal=9&pr=visit&s=7`) instead of unreadable base64/LZ blocks.
@@ -81,6 +64,21 @@ Comprehensive aspect ratios and resolutions with instant live preview:
 - **Social Sharing:** In-app Share buttons with Web Share API on mobile devices and clipboard copy fallback.
 - **High-Resolution Card Assets:** Bundles `public/og.jpg` and `public/og.png` (1200 x 630) for rich link preview cards across WhatsApp, Telegram, Discord, X/Twitter, Facebook, and LinkedIn.
 - **Structured Data:** Embeds Schema.org `WebApplication` JSON-LD metadata for Google search indexing.
+
+## Architecture
+
+Type Garden Studio eliminates cloud asset storage (AWS S3), relational databases (PostgreSQL), and server-side video rendering through a client-first architecture:
+
+| Component | Traditional Approach | Type Garden Studio ($0 Cost) |
+| --- | --- | --- |
+| **User Sprites** | AWS S3 / Cloud Storage | Persisted locally in `IndexedDB` via `idb-keyval` as alpha `Blob`s |
+| **Garden State & Sharing** | PostgreSQL / MongoDB | Clean query params (`?t=...&pal=...`) with legacy `#g=...` fallback |
+| **Settings & Preferences** | Cloud database | Browser `localStorage` (palette, preset, dimensions, seed) |
+| **Background Removal** | Cloud API (e.g., remove.bg at $0.20/image) | In-browser `OffscreenCanvas` chroma-key and corner luminance flood-fill |
+| **MP4 / WebM Video Export** | Server-side FFmpeg queue | Direct-canvas `MediaRecorder` at 16Mbps stream capture with live progress mirror |
+| **PNG Frames ZIP Export** | Server ZIP compression worker | Pure TypeScript PKZIP archiver with direct-canvas frame rendering & IEEE 802.3 CRC32 |
+| **Multi-Gardener Sync** | Dedicated WebSocket cluster | Zero-cost `BroadcastChannel` (cross-tab) and ephemeral P2P channels |
+| **Hosting & CDN** | Dynamic Node.js server | 100% static asset bundle (~30KB gzipped) on Cloudflare Pages or Vercel |
 
 ## Prerequisites
 
@@ -91,7 +89,7 @@ Comprehensive aspect ratios and resolutions with instant live preview:
 
 ### Installation
 
-Install dependencies:
+Install project dependencies:
 
 ```bash
 npm install
@@ -105,33 +103,63 @@ Start the local Vite development server:
 npm run dev
 ```
 
-### Production Build
+### Building
 
-Type-check with strict `tsc` and bundle with Vite:
+Type-check with strict `tsc` and generate an optimized bundle in `dist/` (~30KB gzipped):
 
 ```bash
 npm run build
 ```
 
-The optimized bundle is generated in `dist/` (~30KB gzipped).
-
 ### Testing
 
-Run unit tests with Vitest:
+Run unit tests using Vitest (executes 26 unit tests in `tests/garden.test.ts`):
 
 ```bash
 npm test
 ```
 
-Executes 26 unit tests in `tests/garden.test.ts`.
-
-### Preview Build
+### Preview
 
 Preview the local production build:
 
 ```bash
 npm run preview
 ```
+
+## Deployment
+
+Type Garden Studio requires zero database or cloud storage backend configuration and deploys directly to Vercel, GitHub Pages, or Cloudflare Pages.
+
+### Vercel
+
+#### Via Vercel Dashboard
+
+1. Push your repository to GitHub.
+2. Open the [Vercel Dashboard](https://vercel.com/new), select **Add New Project**, and import your repository.
+3. Set **Framework Preset** to **Vite** (auto-detected).
+4. Set **Build Command** to `npm run build`.
+5. Set **Output Directory** to `dist`.
+6. Select **Deploy**.
+
+#### Via Terminal CLI
+
+Deploy directly using the CLI:
+
+```bash
+npx vercel
+```
+
+### GitHub Pages
+
+The repository includes an automated GitHub Actions deployment workflow in `.github/workflows/deploy.yml`.
+
+1. Push code to the `main` branch on GitHub.
+2. Navigate to **Settings > Pages** in your GitHub repository.
+3. Set **Source** under **Build and deployment** to **GitHub Actions**.
+4. GitHub Actions runs tests, builds the Vite production bundle, and publishes the site to `https://<username>.github.io/<repository-name>/`.
+
+Because `vite.config.ts` uses relative asset resolution (`base: './'`), all scripts, fonts, and worker chunks load seamlessly on both subpaths and root domains.
 
 ## Project Structure
 
@@ -171,46 +199,14 @@ TYPE-GARDEN-POSTER/
 │       └── studioInspector.ts  # 4-tab Poster Studio inspector (Design, Size & Motion, Sprites, Textures)
 ```
 
-## Deployment
-
-Type Garden Studio requires zero database or cloud storage backend configuration and deploys directly to Vercel, GitHub Pages, or Cloudflare Pages.
-
-### Deploy to Vercel
-
-#### Via Vercel Dashboard
-1. Push your repository to GitHub.
-2. In the [Vercel Dashboard](https://vercel.com/new), select **Add New Project** and import your repository.
-3. Framework Preset: **Vite** (auto-detected).
-4. Build Command: `npm run build`.
-5. Output Directory: `dist`.
-6. Select **Deploy**. Vercel will serve your app at a custom `.vercel.app` domain with instant global edge CDN caching.
-
-#### Via Terminal CLI
-Deploy directly using the CLI:
-
-```bash
-npx vercel
-```
-
-### Deploy to GitHub Pages
-
-The repository includes an automated GitHub Actions workflow in `.github/workflows/deploy.yml`.
-
-1. Push your code to the `main` branch on GitHub.
-2. Navigate to **Settings > Pages** in your GitHub repository.
-3. Under **Build and deployment > Source**, choose **GitHub Actions**.
-4. GitHub Actions automatically runs tests, builds the Vite production bundle, and publishes the site to `https://<username>.github.io/<repository-name>/`.
-
-Because `vite.config.ts` uses relative asset resolution (`base: './'`), all scripts, fonts, and worker chunks load seamlessly on both subpaths and root domains.
-
 ## Design & Accessibility
 
-- **No Em Dashes:** UI copy uses clean hyphens, colons, commas, or parentheses.
+- **No Em Dashes:** UI copy uses hyphens, colons, commas, or parentheses.
 - **Accessibility:** Text elements meet WCAG AA contrast standards.
-- **Mobile First:** Touch targets meet the 44px minimum recommendation; dynamic viewports reflow across mobile and desktop.
-- **No Dead Controls:** Every button, slider, and input has an active, tested function.
+- **Mobile First:** Touch targets meet the 44px minimum recommendation; dynamic viewports reflow across mobile and desktop devices.
+- **Functional Controls:** Every button, slider, and input has an active, tested function.
 
-## Reference & Credits
+## Credits & References
 
 Type Garden Studio is inspired by and pays direct credit to:
 
@@ -218,10 +214,10 @@ Type Garden Studio is inspired by and pays direct credit to:
 - **Developer:** [Akshat Agarwal](https://x.com/art_akshat) ([@art_akshat](https://x.com/art_akshat))
 - **Original Concept:** [Type Garden on Vercel](https://type-garden.vercel.app/). All credits for the original botanical generative concept and typing interactions belong to Akshat Agarwal.
 
-This implementation builds upon the concept by introducing:
+This project expands upon the original concept by providing:
 - A modular TypeScript 5 architecture with 100% strict typing.
 - A zero-cost client-side storage pipeline (IndexedDB + LZString state compression).
-- An OffscreenCanvas chroma-key and corner flood-fill background removal pipeline for user-uploaded sprites.
+- An `OffscreenCanvas` chroma-key and corner flood-fill background removal pipeline for user-uploaded sprites.
 - A social media and device poster engine with 10 presets and custom dimension inputs.
 - Non-blocking 30fps MP4/WebM video recording and CRC32 ZIP frames export.
 - Offline-ready vector SVG exports with embedded base64 sprite images.
