@@ -646,7 +646,7 @@ export class TypeGardenApp {
     swatches.forEach((sw, i) => {
       const el = sw as HTMLElement;
       const isAct = s.palette === i;
-      const p = RAW_PALETTES[i];
+      const p = RAW_PALETTES[i] || RAW_PALETTES[0];
       el.style.borderColor = isAct
         ? curPal.C.text
         : p[1] === curPal.bg
@@ -1495,3 +1495,5 @@ window.addEventListener('DOMContentLoaded', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).tg = new TypeGardenApp();
 });
+
+
